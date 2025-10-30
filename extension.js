@@ -26,13 +26,12 @@ const TaskButton = GObject.registerClass(
 
             this._window = window;
 
-            this.add_style_class_name('task-button');
             this._makeButtonBox();
 
             this._updateApp();
             this._updateVisibility();
 
-            this._id = `task-button-${this._window}`;
+            this._id = `task-button-${this._window?.get_id()}`;
             if (!Main.panel.statusArea[this._id])
                 Main.panel.addToStatusArea(this._id, this, 99, 'left');
 
@@ -119,8 +118,7 @@ const TaskButton = GObject.registerClass(
 
             if (this.get_hover()) {
                 const monitorIndex = this._window?.get_monitor();
-                const monitorWindows = this._window?.get_workspace()
-                    .list_windows()
+                const monitorWindows = this._window?.get_workspace()?.list_windows()
                     .filter(w => !w.minimized && w.get_monitor() === monitorIndex);
                 this._windowOnTop = global.display.sort_windows_by_stacking(monitorWindows)?.at(-1);
 
@@ -215,7 +213,7 @@ const TaskBar = GObject.registerClass(
                 this._makeTaskbarTimeout = null;
             }
 
-            for (let bin of Main.panel._leftBox.get_children()) {
+            for (const bin of Main.panel._leftBox.get_children()) {
                 const button = bin.child;
 
                 if (button && button instanceof TaskButton)
@@ -229,9 +227,9 @@ const TaskBar = GObject.registerClass(
 
                 for (let workspaceIndex = 0; workspaceIndex < workspacesNumber; workspaceIndex++) {
                     const workspace = global.workspace_manager.get_workspace_by_index(workspaceIndex);
-                    const windowsList = workspace?.list_windows() || [];
+                    const windowsList = workspace?.list_windows() ?? [];
 
-                    for (let window of windowsList)
+                    for (const window of windowsList)
                         this._makeTaskButton(window);
                 }
 
