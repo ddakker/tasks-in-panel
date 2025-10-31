@@ -1,0 +1,30 @@
+.task-button {
+  border-radius: 4px;
+}
+
+.task-box {
+  border-radius: 4px;
+
+  margin-top: 5px;
+  margin-bottom: 5px;
+
+  padding-left: 3px;
+  padding-right: 3px;
+
+  transition-duration: 200ms;
+}
+
+.task-box-focus {
+  background-color: rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 5px 0 rgba(0, 0, 0, 0.3);
+}
+
+:overview .task-box-focus {
+  background-color: rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 0 5px 0 rgba(255, 255, 255, 0.3);
+}
+
+.task-box-demands-attention {
+  background-color: rgba(255, 0, 0, 0.6);
+  box-shadow: inset 0 0 5px 0 rgba(255, 0, 0, 0.6);
+}

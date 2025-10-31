@@ -16,13 +16,13 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 
 
-const ICON_SIZE = 20; // px
-const UNFOCUSED_OPACITY = 128; // 0...255
+const ICON_SIZE = 18; // px
 
 const TaskButton = GObject.registerClass(
     class TaskButton extends PanelMenu.Button {
         _init(window) {
             super._init();
+            this.add_style_class_name('task-button');
 
             this._window = window;
 
@@ -65,7 +65,7 @@ const TaskButton = GObject.registerClass(
         }
 
         _makeButtonBox() {
-            this._box = new St.BoxLayout();
+            this._box = new St.BoxLayout({ reactive: true, track_hover: true, style_class: 'task-box' });
 
             this._icon = new St.Icon({ fallback_gicon: null });
             this._box.add_child(this._icon);
@@ -135,18 +135,17 @@ const TaskButton = GObject.registerClass(
 
         _updateFocus() {
             if (this._window?.appears_focused)
-                this.opacity = 255;
+                this._box.add_style_class_name('task-box-focus');
             else
-                this.opacity = UNFOCUSED_OPACITY;
+                this._box.remove_style_class_name('task-box-focus');
         }
 
         _updateDemandsAttention() {
             if (this._window?.demands_attention) {
-                this.opacity = 255;
-                this.add_style_class_name('task-demands-attention');
+                this._box.add_style_class_name('task-box-demands-attention');
                 this.visible = true;
             } else {
-                this.remove_style_class_name('task-demands-attention');
+                this._box.remove_style_class_name('task-box-demands-attention');
                 this._updateVisibility();
             }
         }
