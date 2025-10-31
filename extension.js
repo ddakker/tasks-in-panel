@@ -228,8 +228,9 @@ const TaskBar = GObject.registerClass(
                 for (let workspaceIndex = 0; workspaceIndex < workspacesNumber; workspaceIndex++) {
                     const workspace = global.workspace_manager.get_workspace_by_index(workspaceIndex);
                     const windowsList = workspace?.list_windows() ?? [];
+                    const windowsListSorted = global.display.sort_windows_by_stacking(windowsList);
 
-                    for (const window of windowsList)
+                    for (const window of windowsListSorted)
                         this._makeTaskButton(window);
                 }
 
