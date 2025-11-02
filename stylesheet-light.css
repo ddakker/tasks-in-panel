@@ -15,8 +15,8 @@
 }
 
 .task-box-focus {
-  background-color: rgba(0, 0, 0, 0.3);
-  box-shadow: inset 0 0 5px 0 rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 5px 0 rgba(0, 0, 0, 0.2);
 }
 
 :overview .task-box-focus {
@@ -25,6 +25,6 @@
 }
 
 .task-box-demands-attention {
-  background-color: rgba(255, 0, 0, 0.6);
-  box-shadow: inset 0 0 5px 0 rgba(255, 0, 0, 0.6);
+  background-color: rgba(255, 0, 0, 0.5);
+  box-shadow: inset 0 0 5px 0 rgba(255, 0, 0, 0.5);
 }

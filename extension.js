@@ -191,11 +191,13 @@ const TaskBar = GObject.registerClass(
 
         _connectSignals() {
             global.display.connectObject('window-created', (display, window) => this._makeTaskButton(window), this);
+
             Main.panel.connectObject('scroll-event', (actor, event) => Main.wm.handleWorkspaceScroll(event), this);
         }
 
         _disconnectSignals() {
             global.display.disconnectObject(this);
+
             Main.panel.disconnectObject(this);
         }
 
