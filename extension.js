@@ -31,9 +31,10 @@ const TaskButton = GObject.registerClass(
             this._updateApp();
             this._updateVisibility();
 
-            this._id = `task-button-${this._window?.get_id()}`;
-            if (!Main.panel.statusArea[this._id])
-                Main.panel.addToStatusArea(this._id, this, 99, 'left');
+            const windowId = this._window?.get_id();
+            const buttonId = `task-button-${windowId}`;
+            if (windowId && !Main.panel.statusArea[buttonId])
+                Main.panel.addToStatusArea(buttonId, this, 99, 'left');
 
             this._connectSignals();
         }
@@ -78,7 +79,7 @@ const TaskButton = GObject.registerClass(
         _toggleWindow() {
             this._windowOnTop = null;
 
-            if (this._window?.has_focus()) {
+            if (this._window?.appears_focused) {
                 if (this._window?.can_minimize() && !Main.overview.visible)
                     this._window?.minimize();
             } else {
@@ -116,7 +117,7 @@ const TaskButton = GObject.registerClass(
             if (Main.overview.visible || !Main.wm._canScroll)
                 return;
 
-            if (this.get_hover()) {
+            if (this.hover) {
                 const monitorIndex = this._window?.get_monitor();
                 const monitorWindows = this._window?.get_workspace()?.list_windows()
                     .filter(w => !w.minimized && w.get_monitor() === monitorIndex);
@@ -153,16 +154,16 @@ const TaskButton = GObject.registerClass(
         _updateApp() {
             if (this._window)
                 this._app = Shell.WindowTracker.get_default().get_window_app(this._window);
+            if (!this._app)
+                return;
 
             const wmClass = this._window?.wm_class;
-            if (this._app) {
-                if (wmClass?.startsWith('chrome'))
-                    this._icon.set_gicon(Gio.Icon.new_for_string(wmClass));
-                else
-                    this._icon.set_gicon(this._app.icon);
+            if (wmClass?.startsWith('chrome'))
+                this._icon.set_gicon(Gio.Icon.new_for_string(wmClass));
+            else
+                this._icon.set_gicon(this._app.icon);
 
-                this.menu.setApp(this._app);
-            }
+            this.menu.setApp(this._app);
 
             this._icon.set_icon_size(ICON_SIZE);
         }
@@ -171,7 +172,7 @@ const TaskButton = GObject.registerClass(
             this._updateFocus();
             this._updateWorkspace();
 
-            this.visible = !this._window?.is_skip_taskbar() && this._windowIsOnActiveWorkspace;
+            this.visible = !this._window?.skip_taskbar && this._windowIsOnActiveWorkspace;
         }
 
         destroy() {
@@ -202,7 +203,7 @@ const TaskBar = GObject.registerClass(
         }
 
         _makeTaskButton(window) {
-            if (!window || window.is_skip_taskbar() || window.get_window_type() === Meta.WindowType.MODAL_DIALOG)
+            if (!window || window.skip_taskbar || window.get_window_type() === Meta.WindowType.MODAL_DIALOG)
                 return;
 
             new TaskButton(window);
