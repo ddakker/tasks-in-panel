@@ -187,7 +187,7 @@ const TaskBar = GObject.registerClass(
         _init() {
             super._init();
 
-            this._makeTaskbar();
+            this._initTaskbar();
         }
 
         _connectSignals() {
@@ -202,11 +202,13 @@ const TaskBar = GObject.registerClass(
             Main.panel.disconnectObject(this);
         }
 
-        _makeTaskButton(window) {
-            if (!window || window.skip_taskbar || window.get_window_type() === Meta.WindowType.MODAL_DIALOG)
-                return;
+        _initTaskbar() {
+            this._makeTaskbarTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+                this._makeTaskbar();
 
-            new TaskButton(window);
+                this._makeTaskbarTimeout = null;
+                return GLib.SOURCE_REMOVE;
+            });
         }
 
         _destroyTaskbar() {
@@ -224,23 +226,25 @@ const TaskBar = GObject.registerClass(
         }
 
         _makeTaskbar() {
-            this._makeTaskbarTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
-                const workspacesNumber = global.workspace_manager.n_workspaces;
+            const workspacesNumber = global.workspace_manager.n_workspaces;
 
-                for (let workspaceIndex = 0; workspaceIndex < workspacesNumber; workspaceIndex++) {
-                    const workspace = global.workspace_manager.get_workspace_by_index(workspaceIndex);
-                    const windowsList = workspace?.list_windows() ?? [];
-                    const windowsListSorted = global.display.sort_windows_by_stacking(windowsList);
+            for (let workspaceIndex = 0; workspaceIndex < workspacesNumber; workspaceIndex++) {
+                const workspace = global.workspace_manager.get_workspace_by_index(workspaceIndex);
+                const windowsList = workspace?.list_windows() ?? [];
+                const windowsListSorted = global.display.sort_windows_by_stacking(windowsList);
 
-                    for (const window of windowsListSorted)
-                        this._makeTaskButton(window);
-                }
+                for (const window of windowsListSorted)
+                    this._makeTaskButton(window);
+            }
 
-                this._connectSignals();
+            this._connectSignals();
+        }
 
-                this._makeTaskbarTimeout = null;
-                return GLib.SOURCE_REMOVE;
-            });
+        _makeTaskButton(window) {
+            if (!window || window.skip_taskbar || window.get_window_type() === Meta.WindowType.MODAL_DIALOG)
+                return;
+
+            new TaskButton(window);
         }
 
         destroy() {
