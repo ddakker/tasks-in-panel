@@ -79,7 +79,7 @@ const TaskButton = GObject.registerClass(
         _toggleWindow() {
             this._windowOnTop = null;
 
-            if (this._window?.has_focus()) {
+            if (this._window?.appears_focused && this._windowIsOnActiveWorkspace) {
                 if (this._window?.can_minimize() && !Main.overview.visible)
                     this._window?.minimize();
             } else {
@@ -135,7 +135,7 @@ const TaskButton = GObject.registerClass(
         }
 
         _updateFocus() {
-            if (this._window?.has_focus())
+            if (this._window?.appears_focused)
                 this._box.add_style_class_name('task-box-focus');
             else
                 this._box.remove_style_class_name('task-box-focus');
