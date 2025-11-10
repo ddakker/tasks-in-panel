@@ -9,5 +9,8 @@
   ],
   "url": "https://github.com/fthx/tasks-in-panel",
   "uuid": "tasks-in-panel@fthx",
-  "version": 999
+  "version": 999,
+  "donations": {
+    "paypal": "fthx75"
+  }
 }
