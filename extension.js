@@ -210,7 +210,7 @@ const TaskButton = GObject.registerClass(
             global.workspace_manager.connectObject('active-workspace-changed', () => this._updateVisibility(), this);
 
             this._window?.connectObject(
-                'notify::appears-focused', () => this._updateFocus(), GObject.ConnectFlags.AFTER,
+                'notify::appears-focused', () => this._updateVisibility(), GObject.ConnectFlags.AFTER,
                 'notify::demands-attention', () => this._updateDemandsAttention(), GObject.ConnectFlags.AFTER,
                 'notify::gtk-application-id', () => this._updateApp(), GObject.ConnectFlags.AFTER,
                 'notify::skip-taskbar', () => this._updateVisibility(), GObject.ConnectFlags.AFTER,
@@ -334,6 +334,9 @@ const TaskButton = GObject.registerClass(
         }
 
         _updateFocus() {
+            if (global.display.focus_window.window_type === Meta.WindowType.MODAL_DIALOG)
+                return;
+
             if (this._windowIsOnActiveWorkspace && this._window?.appears_focused)
                 this._box.add_style_class_name('task-box-focus');
             else
@@ -494,7 +497,7 @@ const TasksInPanel = GObject.registerClass(
         }
 
         _makeTaskButton(window) {
-            if (!window || window.skip_taskbar || window.get_window_type() === Meta.WindowType.MODAL_DIALOG)
+            if (!window || window.skip_taskbar || window.window_type === Meta.WindowType.MODAL_DIALOG)
                 return;
 
             new TaskButton(this._settings, window);
