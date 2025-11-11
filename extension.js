@@ -185,7 +185,6 @@ const TaskButton = GObject.registerClass(
             this._window = window;
 
             this.add_style_class_name('task-button');
-            this.width = this._settings?.get_int('button-width');
             this._makeButtonBox();
 
             this._updateApp();
@@ -236,6 +235,10 @@ const TaskButton = GObject.registerClass(
 
         _makeButtonBox() {
             this._box = new St.BoxLayout({ reactive: true, track_hover: true, style_class: 'task-box' });
+
+            const buttonWidth = this._settings?.get_int('button-width');
+            if (buttonWidth > -1)
+                this._box.set_style(`-st-natural-width: 9999px; max-width: ${buttonWidth}px;`);
 
             this._icon = new St.Icon({ fallback_gicon: null });
             this._box.add_child(this._icon);
@@ -346,17 +349,14 @@ const TaskButton = GObject.registerClass(
         }
 
         _updateVisibility() {
+            this._activeWorkspace = global.workspace_manager.get_active_workspace();
+            this._windowIsOnActiveWorkspace = this._window?.located_on_workspace(this._activeWorkspace);
+
             this._updateFocus();
-            this._updateWorkspace();
 
             this.visible = !this._window?.skip_taskbar
                 && (!this._settings?.get_boolean('show-active-workspace') || this._windowIsOnActiveWorkspace)
                 && (!this._settings?.get_boolean('show-focused-window') || this._window?.appears_focused);
-        }
-
-        _updateWorkspace() {
-            this._activeWorkspace = global.workspace_manager.get_active_workspace();
-            this._windowIsOnActiveWorkspace = this._window?.located_on_workspace(this._activeWorkspace);
         }
 
         destroy() {

@@ -1,140 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <schemalist>
+
     <schema path="/org/gnome/shell/extensions/tasks-in-panel/" id="org.gnome.shell.extensions.tasks-in-panel">
 
-    <key type="b" name="yaru-panel">
-        <default>true</default>
-        <summary>Yaru-like panel</summary>
-    </key>
+        <key type="b" name="yaru-panel">
+            <default>true</default>
+            <summary>Yaru-like panel</summary>
+        </key>
 
-    <key type="b" name="scroll-panel">
-        <default>true</default>
-        <summary>Scroll on panel to change workspace</summary>
-    </key>
+        <key type="b" name="scroll-panel">
+            <default>true</default>
+            <summary>Scroll on panel to change workspace</summary>
+        </key>
 
-    <key type="b" name="move-date">
-        <default>true</default>
-        <summary>Move date menu to the right</summary>
-    </key>
+        <key type="b" name="move-date">
+            <default>true</default>
+            <summary>Move date menu to the right</summary>
+        </key>
 
-    <key type="b" name="show-activities">
-        <default>false</default>
-        <summary>Show activities indicator</summary>
-    </key>
+        <key type="b" name="show-activities">
+            <default>false</default>
+            <summary>Show activities indicator</summary>
+        </key>
 
-    <key type="b" name="show-workspaces-bar">
-        <default>true</default>
-        <summary>Show workspaces bar</summary>
-    </key>
+        <key type="b" name="show-workspaces-bar">
+            <default>true</default>
+            <summary>Show workspaces bar</summary>
+        </key>
 
-    <key type="b" name="show-favorites-menu">
-        <default>true</default>
-        <summary>Show favorites menu button</summary>
-    </key>
+        <key type="b" name="show-favorites-menu">
+            <default>true</default>
+            <summary>Show favorites menu button</summary>
+        </key>
 
-    <key type="b" name="center-tasks">
-        <default>false</default>
-        <summary>Move tasks to the center</summary>
-    </key>
+        <key type="b" name="center-tasks">
+            <default>false</default>
+            <summary>Move tasks to the center</summary>
+        </key>
 
-    <key type="b" name="show-window-icon">
-        <default>true</default>
-        <summary>Show window icon inside task button</summary>
-    </key>
+        <key type="b" name="show-window-icon">
+            <default>true</default>
+            <summary>Show window icon inside task button</summary>
+        </key>
 
-    <key type="b" name="show-window-title">
-        <default>true</default>
-        <summary>Show window title inside task button</summary>
-    </key>
+        <key type="b" name="show-window-title">
+            <default>true</default>
+            <summary>Show window title inside task button</summary>
+        </key>
 
-    <key type="b" name="show-active-workspace">
-        <default>true</default>
-        <summary>Show only windows on active workspace</summary>
-    </key>
+        <key type="b" name="show-active-workspace">
+            <default>true</default>
+            <summary>Show only windows on active workspace</summary>
+        </key>
 
-    <key type="b" name="show-focused-window">
-        <default>false</default>
-        <summary>Show only task for focused window</summary>
-    </key>
+        <key type="b" name="show-focused-window">
+            <default>false</default>
+            <summary>Show only task for focused window</summary>
+        </key>
 
-    <key type="i" name="button-width">
-        <default>-1</default>
-        <summary>Task button natural width</summary>
-    </key>
-
-
-    <!-- <key type="b" name="show-overview">
-        <default>false</default>
-        <summary>Show overview at start-up</summary>
-    </key>
-
-    <key type="b" name="show-dash">
-        <default>false</default>
-        <summary>Show dash in overview</summary>
-    </key>
-
-    
-
-    <key type="b" name="center-dash">
-        <default>false</default>
-        <summary>Move dash to the center</summary>
-    </key>
-
-    <key type="b" name="show-label">
-        <default>true</default>
-        <summary>Show app label on hover</summary>
-    </key>
-
-    <key type="b" name="show-running">
-        <default>false</default>
-        <summary>Show only running apps</summary>
-    </key>
-
-    <key type="b" name="dim-dot">
-        <default>false</default>
-        <summary>Dim running app indicator opacity when not on active workspace</summary>
-    </key>
-
-    <key type="b" name="show-apps">
-        <default>true</default>
-        <summary>Show app grid button</summary>
-    </key>
-
-    <key type="b" name="scroll-panel">
-        <default>true</default>
-        <summary>Scroll on panel to change workspace</summary>
-    </key>
-
-    <key type="b" name="click-changed">
-        <default>true</default>
-        <summary>Minimize focus app on click</summary>
-    </key>
-
-    <key type="b" name="cycle-windows">
-        <default>true</default>
-        <summary>Cycle through windows</summary>
-    </key>
-
-    <key type="b" name="colored-dot">
-        <default>true</default>
-        <summary>Colored running indicator</summary>
-    </key>
-
-    <key type="i" name="button-margin">
-        <default>2</default>
-        <summary>App button margin</summary>
-    </key>
-
-    <key type="i" name="panel-height">
-        <default>32</default>
-        <summary>Top panel height</summary>
-    </key>
-
-    <key type="i" name="icon-size">
-        <default>20</default>
-        <summary>Icon size</summary>
-    </key> -->
+        <key type="i" name="button-width">
+            <default>-1</default>
+            <summary>Task button natural width</summary>
+        </key>
 
     </schema>
+
 </schemalist>

@@ -7,8 +7,9 @@
   padding-left: 8px;
   padding-right: 8px;
 
-  margin-left: 3px;
-  margin-right: 3px;
+  margin: 5px;
+
+  font-size: 90%;
 
   transition-duration: 200ms;
 }
