@@ -25,7 +25,7 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
 
         const yaruPanel = new Adw.SwitchRow({
             title: 'Yaru-like panel',
-            subtitle: 'Dark grey or white background, normal-weighted fonts',
+            subtitle: 'Dark grey or white background, normal-weighted fonts.',
         });
         groupGlobal.add(yaruPanel);
         window._settings.bind('yaru-panel', yaruPanel, 'active', Gio.SettingsBindFlags.DEFAULT);
@@ -71,7 +71,7 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
 
         const centerTasks = new Adw.SwitchRow({
             title: 'Move tasks to the center',
-            subtitle: 'Tasks are by default located at the left',
+            subtitle: 'Tasks are by default located at the left.',
         });
         groupIndicators.add(centerTasks);
         window._settings.bind('center-tasks', centerTasks, 'active', Gio.SettingsBindFlags.DEFAULT);
@@ -85,25 +85,25 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
         page.add(groupTasks);
 
         const showWindowIcon = new Adw.SwitchRow({
-            title: 'Show window icon inside task button',
+            title: 'Show window icon',
         });
         groupTasks.add(showWindowIcon);
         window._settings.bind('show-window-icon', showWindowIcon, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         const showWindowTitle = new Adw.SwitchRow({
-            title: 'Show window title inside task button',
+            title: 'Show window title',
         });
         groupTasks.add(showWindowTitle);
         window._settings.bind('show-window-title', showWindowTitle, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         const showOnlyActiveWorkspace = new Adw.SwitchRow({
-            title: 'Show tasks on active workspace only',
+            title: 'Show on active workspace only',
         });
         groupTasks.add(showOnlyActiveWorkspace);
         window._settings.bind('show-active-workspace', showOnlyActiveWorkspace, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         const showFocusedWindow = new Adw.SwitchRow({
-            title: 'Show task for focused window only',
+            title: 'Show focused window only',
         });
         groupTasks.add(showFocusedWindow);
         window._settings.bind('show-focused-window', showFocusedWindow, 'active', Gio.SettingsBindFlags.DEFAULT);
@@ -116,7 +116,7 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
 
         const buttonWidth = new Adw.SpinRow({
             title: 'Task button natural width (px)',
-            subtitle: 'Will be reduced if the available width is insufficient\nSet -1 for fitted width',
+            subtitle: 'Will be reduced if the available width is insufficient.\nSet -1 for fitted width.',
             adjustment: adjustmentButtonWidth,
         });
         groupTasks.add(buttonWidth);

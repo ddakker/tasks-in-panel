@@ -208,9 +208,9 @@ const TaskButton = GObject.registerClass(
 
         _connectSignals() {
             global.workspace_manager.connectObject('active-workspace-changed', () => this._updateVisibility(), this);
+            global.display.connectObject('notify::focus-window', () => this._updateVisibility(), GObject.ConnectFlags.AFTER, this);
 
             this._window?.connectObject(
-                'notify::appears-focused', () => this._updateVisibility(), GObject.ConnectFlags.AFTER,
                 'notify::demands-attention', () => this._updateDemandsAttention(), GObject.ConnectFlags.AFTER,
                 'notify::gtk-application-id', () => this._updateApp(), GObject.ConnectFlags.AFTER,
                 'notify::skip-taskbar', () => this._updateVisibility(), GObject.ConnectFlags.AFTER,
@@ -229,6 +229,7 @@ const TaskButton = GObject.registerClass(
 
         _disconnectSignals() {
             global.workspace_manager.disconnectObject(this);
+            global.display.disconnectObject(this);
 
             this._window?.disconnectObject(this);
         }
@@ -256,7 +257,7 @@ const TaskButton = GObject.registerClass(
         _toggleWindow() {
             this._windowOnTop = null;
 
-            if (this._windowIsOnActiveWorkspace && this._window?.appears_focused) {
+            if (this._windowIsOnActiveWorkspace && this._windowHasFocus) {
                 if (this._window?.can_minimize() && !Main.overview.visible)
                     this._window?.minimize();
             } else {
@@ -334,10 +335,13 @@ const TaskButton = GObject.registerClass(
         }
 
         _updateFocus() {
-            if (global.display.focus_window.window_type === Meta.WindowType.MODAL_DIALOG)
+            const focusWindow = global.display.focus_window;
+            this._windowHasFocus = this._window?.appears_focused || (focusWindow?.get_transient_for() === this._window);
+
+            if (this._settings?.get_boolean('show-focused-window'))
                 return;
 
-            if (this._windowIsOnActiveWorkspace && this._window?.appears_focused)
+            if (this._windowIsOnActiveWorkspace && this._windowHasFocus)
                 this._box.add_style_class_name('task-box-focus');
             else
                 this._box.remove_style_class_name('task-box-focus');
@@ -355,7 +359,7 @@ const TaskButton = GObject.registerClass(
 
             this.visible = !this._window?.skip_taskbar
                 && (!this._settings?.get_boolean('show-active-workspace') || this._windowIsOnActiveWorkspace)
-                && (!this._settings?.get_boolean('show-focused-window') || this._window?.appears_focused);
+                && (!this._settings?.get_boolean('show-focused-window') || this._windowHasFocus);
         }
 
         destroy() {
