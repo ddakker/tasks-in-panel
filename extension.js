@@ -330,7 +330,11 @@ const TaskButton = GObject.registerClass(
         }
 
         _updateFocus() {
-            if (this._window?.appears_focused)
+            const focusWindow = global.display.focus_window;
+            const isModalFocused = (focusWindow?.window_type === Meta.WindowType.MODAL_DIALOG)
+                && (focusWindow?.get_transient_for() === this._window);
+
+            if (this._window?.appears_focused || isModalFocused)
                 this._box.add_style_class_name('task-box-focus');
             else
                 this._box.remove_style_class_name('task-box-focus');
