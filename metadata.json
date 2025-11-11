@@ -9,6 +9,7 @@
   ],
   "url": "https://github.com/fthx/tasks-in-panel",
   "uuid": "tasks-in-panel@fthx",
+  "settings-schema": "org.gnome.shell.extensions.tasks-in-panel",
   "version": 999,
   "donations": {
     "paypal": "fthx75"

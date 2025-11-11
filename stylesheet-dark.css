@@ -1,3 +1,34 @@
+.workspace-button {
+  border-radius: 4px;
+  border: 1px solid;
+
+  padding-top: 1px;
+  padding-bottom: 2px;
+  padding-left: 8px;
+  padding-right: 8px;
+
+  margin-left: 3px;
+  margin-right: 3px;
+
+  transition-duration: 200ms;
+}
+
+.workspace-button:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.workspace-button-active {
+  border-color: rgba(255, 255, 255, 0.4);
+
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.workspace-button-inactive {
+  border-color: rgba(255, 255, 255, 0.2);
+
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 .task-button {
   border-radius: 6px;
 }
@@ -22,4 +53,18 @@
 .task-box-demands-attention {
   background-color: rgba(255, 0, 0, 0.6);
   box-shadow: inset 0 0 5px 0 rgba(255, 0, 0, 0.6);
+}
+
+.task-label {
+  margin-left: 6px;
+  margin-right: 6px;
+}
+
+.panel-yaru-like {
+  background-color: rgba(24, 24, 24, 1);
+}
+
+.panel-yaru-like .panel-button,
+.panel-yaru-like .panel-button * {
+  font-weight: normal;
 }
