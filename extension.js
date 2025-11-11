@@ -237,7 +237,7 @@ const TaskButton = GObject.registerClass(
             this._box = new St.BoxLayout({ reactive: true, track_hover: true, style_class: 'task-box' });
 
             const buttonWidth = this._settings?.get_int('button-width');
-            if (buttonWidth > -1)
+            if (this._settings?.get_boolean('show-window-title') && buttonWidth > -1)
                 this._box.set_style(`-st-natural-width: 9999px; max-width: ${buttonWidth}px;`);
 
             this._icon = new St.Icon({ fallback_gicon: null });
@@ -256,7 +256,7 @@ const TaskButton = GObject.registerClass(
         _toggleWindow() {
             this._windowOnTop = null;
 
-            if (this._window?.appears_focused && this._windowIsOnActiveWorkspace) {
+            if (this._windowIsOnActiveWorkspace && this._window?.appears_focused) {
                 if (this._window?.can_minimize() && !Main.overview.visible)
                     this._window?.minimize();
             } else {
@@ -334,11 +334,7 @@ const TaskButton = GObject.registerClass(
         }
 
         _updateFocus() {
-            const focusWindow = global.display.focus_window;
-            const isModalFocused = (focusWindow?.window_type === Meta.WindowType.MODAL_DIALOG)
-                && (focusWindow?.get_transient_for() === this._window);
-
-            if (this._windowIsOnActiveWorkspace && (this._window?.appears_focused || isModalFocused))
+            if (this._windowIsOnActiveWorkspace && this._window?.appears_focused)
                 this._box.add_style_class_name('task-box-focus');
             else
                 this._box.remove_style_class_name('task-box-focus');

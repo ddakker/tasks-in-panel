@@ -46,7 +46,7 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
         page.add(groupIndicators);
 
         const moveDate = new Adw.SwitchRow({
-            title: 'Move date to the right',
+            title: 'Move date menu button to the right',
         });
         groupIndicators.add(moveDate);
         window._settings.bind('move-date', moveDate, 'active', Gio.SettingsBindFlags.DEFAULT);
@@ -97,13 +97,13 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
         window._settings.bind('show-window-title', showWindowTitle, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         const showOnlyActiveWorkspace = new Adw.SwitchRow({
-            title: 'Show only tasks on active workspace',
+            title: 'Show tasks on active workspace only',
         });
         groupTasks.add(showOnlyActiveWorkspace);
         window._settings.bind('show-active-workspace', showOnlyActiveWorkspace, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         const showFocusedWindow = new Adw.SwitchRow({
-            title: 'Show only task for focused window',
+            title: 'Show task for focused window only',
         });
         groupTasks.add(showFocusedWindow);
         window._settings.bind('show-focused-window', showFocusedWindow, 'active', Gio.SettingsBindFlags.DEFAULT);
@@ -115,8 +115,8 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
         });
 
         const buttonWidth = new Adw.SpinRow({
-            title: 'Button natural width (px)',
-            subtitle: 'Will be reduced if the available width is insufficient\n-1 for adaptative width',
+            title: 'Task button natural width (px)',
+            subtitle: 'Will be reduced if the available width is insufficient\nSet -1 for fitted width',
             adjustment: adjustmentButtonWidth,
         });
         groupTasks.add(buttonWidth);

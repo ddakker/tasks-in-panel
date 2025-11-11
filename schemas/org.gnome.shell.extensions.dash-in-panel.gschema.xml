@@ -16,7 +16,7 @@
 
         <key type="b" name="move-date">
             <default>true</default>
-            <summary>Move date menu to the right</summary>
+            <summary>Move date menu button to the right</summary>
         </key>
 
         <key type="b" name="show-activities">
@@ -51,16 +51,16 @@
 
         <key type="b" name="show-active-workspace">
             <default>true</default>
-            <summary>Show only windows on active workspace</summary>
+            <summary>Show windows on active workspace only</summary>
         </key>
 
         <key type="b" name="show-focused-window">
             <default>false</default>
-            <summary>Show only task for focused window</summary>
+            <summary>Show task for focused window only</summary>
         </key>
 
         <key type="i" name="button-width">
-            <default>-1</default>
+            <default>256</default>
             <summary>Task button natural width</summary>
         </key>
 
