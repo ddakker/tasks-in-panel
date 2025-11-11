@@ -185,6 +185,7 @@ const TaskButton = GObject.registerClass(
             this._window = window;
 
             this.add_style_class_name('task-button');
+            this.width = this._settings?.get_int('button-width');
             this._makeButtonBox();
 
             this._updateApp();
@@ -334,7 +335,7 @@ const TaskButton = GObject.registerClass(
             const isModalFocused = (focusWindow?.window_type === Meta.WindowType.MODAL_DIALOG)
                 && (focusWindow?.get_transient_for() === this._window);
 
-            if (this._window?.appears_focused || isModalFocused)
+            if (this._windowIsOnActiveWorkspace && (this._window?.appears_focused || isModalFocused))
                 this._box.add_style_class_name('task-box-focus');
             else
                 this._box.remove_style_class_name('task-box-focus');
@@ -448,12 +449,13 @@ const TasksInPanel = GObject.registerClass(
                 GLib.Source.remove(this._makeTaskBarTimeout);
                 this._makeTaskBarTimeout = null;
             }
+            for (const box of [Main.panel._leftBox, Main.panel._centerBox]) {
+                for (const bin of box.get_children()) {
+                    const button = bin?.child;
 
-            for (const bin of Main.panel._leftBox.get_children()) {
-                const button = bin.child;
-
-                if (button && button instanceof TaskButton)
-                    button.destroy();
+                    if (button && button instanceof TaskButton)
+                        button.destroy();
+                }
             }
         }
 

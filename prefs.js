@@ -25,7 +25,7 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
 
         const yaruPanel = new Adw.SwitchRow({
             title: 'Yaru-like panel',
-            subtitle: 'Dark grey background, normal-weighted fonts',
+            subtitle: 'Dark grey or white background, normal-weighted fonts',
         });
         groupGlobal.add(yaruPanel);
         window._settings.bind('yaru-panel', yaruPanel, 'active', Gio.SettingsBindFlags.DEFAULT);
@@ -108,7 +108,19 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
         groupTasks.add(showFocusedWindow);
         window._settings.bind('show-focused-window', showFocusedWindow, 'active', Gio.SettingsBindFlags.DEFAULT);
 
+        const adjustmentButtonWidth = new Gtk.Adjustment({
+            lower: -1,
+            upper: 512,
+            step_increment: 1,
+        });
 
+        const buttonWidth = new Adw.SpinRow({
+            title: 'Button natural width (px)',
+            subtitle: 'Will be reduced if the available width is insufficient\n-1 for adaptative width',
+            adjustment: adjustmentButtonWidth,
+        });
+        groupTasks.add(buttonWidth);
+        window._settings.bind('button-width', buttonWidth, 'value', Gio.SettingsBindFlags.DEFAULT);
 
 
 

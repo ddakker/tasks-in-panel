@@ -58,6 +58,11 @@
         <summary>Show only task for focused window</summary>
     </key>
 
+    <key type="i" name="button-width">
+        <default>-1</default>
+        <summary>Task button natural width</summary>
+    </key>
+
 
     <!-- <key type="b" name="show-overview">
         <default>false</default>
