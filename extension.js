@@ -292,7 +292,7 @@ const TaskButton = GObject.registerClass(
         }
 
         _onHover() {
-            if (Main.overview.visible || !Main.wm._canScroll)
+            if (!this._settings?.get_boolean('hover-raise-window') || Main.overview.visible || !Main.wm._canScroll)
                 return;
 
             if (this.hover) {

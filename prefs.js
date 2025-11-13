@@ -108,6 +108,12 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
         groupTasks.add(showFocusedWindow);
         window._settings.bind('show-focused-window', showFocusedWindow, 'active', Gio.SettingsBindFlags.DEFAULT);
 
+        const hoverRaiseWindow = new Adw.SwitchRow({
+            title: 'Raise window on hover',
+        });
+        groupTasks.add(hoverRaiseWindow);
+        window._settings.bind('hover-raise-window', hoverRaiseWindow, 'active', Gio.SettingsBindFlags.DEFAULT);
+
         const adjustmentButtonWidth = new Gtk.Adjustment({
             lower: -1,
             upper: 512,
