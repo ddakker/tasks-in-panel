@@ -547,6 +547,7 @@ const TasksInPanel = GObject.registerClass(
             Main.panel.remove_style_class_name('panel-yaru-like');
             Main.panel.statusArea.activities.visible = true;
             this._userIdButton?.destroy();
+            this._moveDate(false);
 
             this._disconnectSignals();
 
