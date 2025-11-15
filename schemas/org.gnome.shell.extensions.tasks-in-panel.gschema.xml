@@ -26,7 +26,7 @@
 
         <key type="b" name="show-user-id">
             <default>true</default>
-            <summary>Show user id</summary>
+            <summary>Show user name</summary>
         </key>
 
         <key type="b" name="move-date">

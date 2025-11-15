@@ -105,21 +105,23 @@ const PowerProfileIndicator = GObject.registerClass(
     });
 
 const UserIdButton = GObject.registerClass(
-    class UserIdButton extends PanelMenu.Button {
+    class UserIdButton extends SystemIndicator {
         _init() {
             super._init()
 
-            this._box = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
+            this._indicator = this._addIndicator();
 
-            const user_id = new St.Label({
-                text: GLib.get_real_name() + " :: " + GLib.get_user_name() + "@" + GLib.get_host_name(),
-                y_align: Clutter.ActorAlign.CENTER, style_class: "user-label"
-            });
+            const userId = new St.Label({ text: `${GLib.get_real_name()}  `, y_align: Clutter.ActorAlign.CENTER });
+            this.add_child(userId);
 
-            this._box.add_child(user_id);
-            this.add_child(this._box);
+            Main.panel.statusArea.quickSettings?.addExternalIndicator(this);
+        }
 
-            Main.panel.addToStatusArea('userIdButton', this);
+        destroy() {
+            this._indicator?.destroy();
+            this._indicator = null;
+
+            super.destroy();
         }
     });
 
