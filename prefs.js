@@ -23,6 +23,13 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
         });
         page.add(groupGlobal);
 
+        const lightStyle = new Adw.SwitchRow({
+            title: 'Light style mode',
+            subtitle: 'GNOME Shell items follow dark/light style toggle.',
+        });
+        groupGlobal.add(lightStyle);
+        window._settings.bind('light-style', lightStyle, 'active', Gio.SettingsBindFlags.DEFAULT);
+
         const yaruPanel = new Adw.SwitchRow({
             title: 'Yaru-like panel',
             subtitle: 'Dark grey or white background, normal-weighted fonts.',

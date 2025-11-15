@@ -4,6 +4,11 @@
 
     <schema path="/org/gnome/shell/extensions/tasks-in-panel/" id="org.gnome.shell.extensions.tasks-in-panel">
 
+        <key type="b" name="light-style">
+            <default>true</default>
+            <summary>Light style mode</summary>
+        </key>
+
         <key type="b" name="yaru-panel">
             <default>true</default>
             <summary>Yaru-like panel</summary>

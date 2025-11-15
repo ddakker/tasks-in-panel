@@ -1,6 +1,8 @@
 //    Tasks in panel
 //    GNOME Shell extension
 //    @fthx 2025
+//    Light style mode copied from @fmuellner GNOME official extension
+//    Power profile indicator copied from @fthx dedicated extension (help of @fmuellner)
 
 
 import Clutter from 'gi://Clutter';
@@ -22,6 +24,25 @@ import { SystemIndicator } from 'resource:///org/gnome/shell/ui/quickSettings.js
 
 const ICON_SIZE = 18; // px
 const FAVORITES_ICON_NAME = 'starred-symbolic'; // favorites symbolic icon name
+
+const LightStyleMode = GObject.registerClass(
+    class LightStyleMode extends GObject.Object {
+        _init() {
+            super._init();
+
+            this._savedColorScheme = Main.sessionMode.colorScheme;
+            this._updateColorScheme('prefer-light');
+        }
+
+        _updateColorScheme(scheme) {
+            Main.sessionMode.colorScheme = scheme;
+            St.Settings.get().notify('color-scheme');
+        }
+
+        destroy() {
+            this._updateColorScheme(this._savedColorScheme);
+        }
+    });
 
 const PowerProfileIndicator = GObject.registerClass(
     class PowerProfileIndicator extends SystemIndicator {
@@ -477,6 +498,9 @@ const TasksInPanel = GObject.registerClass(
         }
 
         _initSettings() {
+            if (this._settings?.get_boolean('light-style'))
+                this._lightStyleMode = new LightStyleMode();
+
             if (this._settings?.get_boolean('yaru-panel'))
                 Main.panel.add_style_class_name('panel-yaru-like');
 
@@ -607,6 +631,7 @@ const TasksInPanel = GObject.registerClass(
         }
 
         destroy() {
+            this._lightStyleMode?.destroy();
             Main.panel.remove_style_class_name('panel-yaru-like');
             Main.panel.statusArea.activities.visible = true;
             this._userIdButton?.destroy();
