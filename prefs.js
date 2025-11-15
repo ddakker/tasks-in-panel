@@ -45,6 +45,13 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
         });
         page.add(groupIndicators);
 
+        const showUserId = new Adw.SwitchRow({
+            title: 'Show user id',
+            subtitle: 'Displays real_name::user_name@host_name.',
+        });
+        groupIndicators.add(showUserId);
+        window._settings.bind('show-user-id', showUserId, 'active', Gio.SettingsBindFlags.DEFAULT);
+
         const moveDate = new Adw.SwitchRow({
             title: 'Move date menu button to the right',
         });

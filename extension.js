@@ -23,6 +23,25 @@ import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 const ICON_SIZE = 18; // px
 const FAVORITES_ICON_NAME = 'starred-symbolic'; // favorites symbolic icon name
 
+const UserIdButton = GObject.registerClass(
+    class UserIdButton extends PanelMenu.Button {
+        _init() {
+            super._init()
+
+            this._box = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
+
+            const user_id = new St.Label({
+                text: GLib.get_real_name() + " :: " + GLib.get_user_name() + "@" + GLib.get_host_name(),
+                y_align: Clutter.ActorAlign.CENTER, style_class: "user-label"
+            });
+
+            this._box.add_child(user_id);
+            this.add_child(this._box);
+
+            Main.panel.addToStatusArea('userIdButton', this);
+        }
+    });
+
 const FavoritesMenuButton = GObject.registerClass(
     class FavoritesMenuButton extends PanelMenu.Button {
         _init() {
@@ -79,9 +98,8 @@ const WorkspacesBar = GObject.registerClass(
             this._box = new St.BoxLayout();
             this.add_child(this._box);
 
-            this._id = 'workspaces-bar-button';
-            if (!Main.panel.statusArea[this._id])
-                Main.panel.addToStatusArea(this._id, this, 0, 'left');
+            if (!Main.panel.statusArea['workspacesBarButton'])
+                Main.panel.addToStatusArea('workspacesBarButton', this, 0, 'left');
         }
 
         destroy() {
@@ -192,7 +210,7 @@ const TaskButton = GObject.registerClass(
             this._updateVisibility();
 
             const windowId = this._window?.get_id();
-            const buttonId = `task-button-${windowId}`;
+            const buttonId = `taskButton${windowId}`;
 
             let side;
             if (this._settings?.get_boolean('center-tasks'))
@@ -404,14 +422,17 @@ const TasksInPanel = GObject.registerClass(
 
             Main.panel.statusArea.activities.visible = this._settings?.get_boolean('show-activities');
 
-            this._moveDate(this._settings.get_boolean('move-date'));
+            if (this._settings?.get_boolean('show-user-id'))
+                this._userIdButton = new UserIdButton();
+
+            this._moveDate(this._settings?.get_boolean('move-date'));
         }
 
         _initFavoritesMenu() {
             this._favoritesMenuButton = new FavoritesMenuButton();
 
-            if (!Main.panel.statusArea['Favorites Menu Button'])
-                Main.panel.addToStatusArea('Favorites Menu Button', this._favoritesMenuButton, 99, 'left');
+            if (!Main.panel.statusArea['favoritesMenuButton'])
+                Main.panel.addToStatusArea('favoritesMenuButton', this._favoritesMenuButton, 99, 'left');
         }
 
         _initTaskBar() {
@@ -525,6 +546,7 @@ const TasksInPanel = GObject.registerClass(
         destroy() {
             Main.panel.remove_style_class_name('panel-yaru-like');
             Main.panel.statusArea.activities.visible = true;
+            this._userIdButton?.destroy();
 
             this._disconnectSignals();
 
