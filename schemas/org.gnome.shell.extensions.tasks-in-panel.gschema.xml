@@ -14,6 +14,11 @@
             <summary>Scroll on panel to change workspace</summary>
         </key>
 
+        <key type="b" name="show-power-profile">
+            <default>true</default>
+            <summary>Show power profile indicator</summary>
+        </key>
+
         <key type="b" name="show-user-id">
             <default>true</default>
             <summary>Show user id</summary>

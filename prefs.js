@@ -45,6 +45,13 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
         });
         page.add(groupIndicators);
 
+        const showPowerProfile = new Adw.SwitchRow({
+            title: 'Show power profile indicator',
+            subtitle: 'Scroll to change power profile.',
+        });
+        groupIndicators.add(showPowerProfile);
+        window._settings.bind('show-power-profile', showPowerProfile, 'active', Gio.SettingsBindFlags.DEFAULT);
+
         const showUserId = new Adw.SwitchRow({
             title: 'Show user id',
             subtitle: 'Displays real_name::user_name@host_name.',

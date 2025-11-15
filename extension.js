@@ -13,15 +13,75 @@ import St from 'gi://St';
 
 import * as AppFavorites from 'resource:///org/gnome/shell/ui/appFavorites.js';
 import { AppMenu } from 'resource:///org/gnome/shell/ui/appMenu.js';
+import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
-
-import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
+import { SystemIndicator } from 'resource:///org/gnome/shell/ui/quickSettings.js';
 
 
 const ICON_SIZE = 18; // px
 const FAVORITES_ICON_NAME = 'starred-symbolic'; // favorites symbolic icon name
+
+const PowerProfileIndicator = GObject.registerClass(
+    class PowerProfileIndicator extends SystemIndicator {
+        _init() {
+            super._init();
+
+            this._indicator = this._addIndicator();
+
+            this._setIcon();
+            this.get_parent()?.connectObject('notify::allocation', () => this._setIcon(), this);
+
+            this.connectObject('scroll-event', (actor, event) => this._onScroll(event), this);
+        }
+
+        _setIcon() {
+            if (this._toggle)
+                return;
+
+            Main.panel.statusArea.quickSettings?.addExternalIndicator(this);
+            this.get_parent()?.set_child_above_sibling(this, null);
+
+            this._toggle = Main.panel.statusArea.quickSettings?._powerProfiles?.quickSettingsItems[0];
+            this._toggle?.bind_property('icon-name', this._indicator, 'icon-name', GObject.BindingFlags.SYNC_CREATE);
+        }
+
+        _setProfile(profile) {
+            if (this._toggle?._proxy)
+                this._toggle._proxy.ActiveProfile = profile;
+        }
+
+        _onScroll(event) {
+            const activeProfile = this._toggle?._proxy?.ActiveProfile;
+            const availableProfiles = this._toggle?._proxy?.Profiles?.map(p => p.Profile.unpack()).reverse();
+            const activeProfileIndex = availableProfiles?.indexOf(activeProfile);
+
+            let newProfile = activeProfile;
+
+            switch (event?.get_scroll_direction()) {
+                case Clutter.ScrollDirection.UP:
+                    newProfile = availableProfiles[Math.max(activeProfileIndex - 1, 0)];
+                    this._setProfile(newProfile);
+                    break;
+                case Clutter.ScrollDirection.DOWN:
+                    newProfile = availableProfiles[Math.min(activeProfileIndex + 1, availableProfiles.length - 1)];
+                    this._setProfile(newProfile);
+                    break;
+            }
+
+            return Clutter.EVENT_STOP;
+        }
+
+        destroy() {
+            this.get_parent()?.disconnectObject(this);
+
+            this._indicator?.destroy();
+            this._indicator = null;
+
+            super.destroy();
+        }
+    });
 
 const UserIdButton = GObject.registerClass(
     class UserIdButton extends PanelMenu.Button {
@@ -425,6 +485,9 @@ const TasksInPanel = GObject.registerClass(
             if (this._settings?.get_boolean('show-user-id'))
                 this._userIdButton = new UserIdButton();
 
+            if (this._settings?.get_boolean('show-power-profile'))
+                this._powerProfileIndicator = new PowerProfileIndicator();
+
             this._moveDate(this._settings?.get_boolean('move-date'));
         }
 
@@ -547,6 +610,7 @@ const TasksInPanel = GObject.registerClass(
             Main.panel.remove_style_class_name('panel-yaru-like');
             Main.panel.statusArea.activities.visible = true;
             this._userIdButton?.destroy();
+            this._powerProfileIndicator?.destroy();
             this._moveDate(false);
 
             this._disconnectSignals();
