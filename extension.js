@@ -426,6 +426,9 @@ const TaskButton = GObject.registerClass(
         }
 
         _updateDemandsAttention() {
+            if (this._settings?.get_boolean('show-focused-window'))
+                return;
+
             if (this._window?.demands_attention) {
                 this._box.add_style_class_name('task-box-demands-attention');
                 this.visible = true;
