@@ -134,6 +134,13 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
         groupTasks.add(hoverRaiseWindow);
         window._settings.bind('hover-raise-window', hoverRaiseWindow, 'active', Gio.SettingsBindFlags.DEFAULT);
 
+        const desaturateIcon = new Adw.SwitchRow({
+            title: 'Monochrome icon',
+            subtitle: 'Some apps do not have a symbolic icon, so simply monochrome here.',
+        });
+        groupTasks.add(desaturateIcon);
+        window._settings.bind('desaturate-icon', desaturateIcon, 'active', Gio.SettingsBindFlags.DEFAULT);
+
         const adjustmentButtonWidth = new Gtk.Adjustment({
             lower: -1,
             upper: 512,

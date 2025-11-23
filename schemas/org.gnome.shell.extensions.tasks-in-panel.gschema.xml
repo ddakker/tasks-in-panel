@@ -79,6 +79,11 @@
             <summary>Raise window on task hover</summary>
         </key>
 
+        <key type="b" name="desaturate-icon">
+            <default>false</default>
+            <summary>Monochrome icon</summary>
+        </key>
+
         <key type="i" name="button-width">
             <default>256</default>
             <summary>Task button natural width</summary>

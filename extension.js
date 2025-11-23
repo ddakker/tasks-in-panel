@@ -345,6 +345,10 @@ const TaskButton = GObject.registerClass(
             this._icon = new St.Icon({ fallback_gicon: null });
             this._box.add_child(this._icon);
             this._icon.visible = this._settings?.get_boolean('show-window-icon');
+            if (this._settings?.get_boolean('desaturate-icon')) {
+                const desaturate = new Clutter.DesaturateEffect();
+                this._icon.add_effect(desaturate);
+            }
 
             this._title = new St.Label({ style_class: 'task-label', y_align: Clutter.ActorAlign.CENTER });
             this._box.add_child(this._title);
