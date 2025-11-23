@@ -485,10 +485,6 @@ const TasksInPanel = GObject.registerClass(
             this._settings = settings;
 
             this._initSettings();
-            if (this._settings?.get_boolean('show-favorites-menu'))
-                this._initFavoritesMenu();
-            if (this._settings?.get_boolean('show-workspaces-bar'))
-                this._initWorkspacesBar();
             this._initTaskBar();
         }
 
@@ -522,6 +518,12 @@ const TasksInPanel = GObject.registerClass(
                 this._powerProfileIndicator = new PowerProfileIndicator();
 
             this._moveDate(this._settings?.get_boolean('move-date'));
+
+            if (this._settings?.get_boolean('show-favorites-menu'))
+                this._initFavoritesMenu();
+
+            if (this._settings?.get_boolean('show-workspaces-bar'))
+                this._initWorkspacesBar();
         }
 
         _initFavoritesMenu() {
@@ -569,6 +571,7 @@ const TasksInPanel = GObject.registerClass(
                 GLib.Source.remove(this._makeTaskBarTimeout);
                 this._makeTaskBarTimeout = null;
             }
+
             for (const box of [Main.panel._leftBox, Main.panel._centerBox]) {
                 for (const bin of box.get_children()) {
                     const button = bin?.child;
