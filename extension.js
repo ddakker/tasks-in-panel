@@ -285,7 +285,6 @@ const TaskButton = GObject.registerClass(
             this._settings = settings;
             this._window = window;
 
-            this.add_style_class_name('task-button');
             this._makeButtonBox();
 
             this._updateApp();
