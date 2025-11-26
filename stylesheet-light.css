@@ -78,3 +78,8 @@
 .panel-yaru-like .panel-button * {
   font-weight: normal;
 }
+
+.panel-accent {
+  background-color: st-lighten(-st-accent-color, 20%);
+  color: -st-accent-fg-color;
+}

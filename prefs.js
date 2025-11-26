@@ -37,6 +37,12 @@ export default class PowerProfilePreferences extends ExtensionPreferences {
         groupGlobal.add(yaruPanel);
         window._settings.bind('yaru-panel', yaruPanel, 'active', Gio.SettingsBindFlags.DEFAULT);
 
+        const accentPanel = new Adw.SwitchRow({
+            title: 'Accent-colored panel',
+            subtitle: 'Background color is based on GNOME accent color.',
+        });
+        groupGlobal.add(accentPanel);
+        window._settings.bind('accent-panel', accentPanel, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         const scrollPanel = new Adw.SwitchRow({
             title: 'Scroll on panel to switch workspace',
