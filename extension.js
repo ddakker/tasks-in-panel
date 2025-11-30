@@ -405,7 +405,13 @@ const TaskButton = GObject.registerClass(
                     .filter(w => !w.minimized && w.get_monitor() === monitorIndex);
                 this._windowOnTop = global.display.sort_windows_by_stacking(monitorWindows)?.at(-1);
 
-                this._window?.raise();
+                this._raiseWindowTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._settings?.get_int('hover-delay'), () => {
+                    if (this.hover)
+                        this._window?.raise();
+
+                    this._raiseWindowTimeout = null;
+                    return GLib.SOURCE_REMOVE;
+                });
             } else
                 this._windowOnTop?.raise();
         }
@@ -470,6 +476,11 @@ const TaskButton = GObject.registerClass(
 
         destroy() {
             this._disconnectSignals();
+
+            if (this._raiseWindowTimeout) {
+                GLib.Source.remove(this._raiseWindowTimeout);
+                this._raiseWindowTimeout = null;
+            }
 
             super.destroy();
         }

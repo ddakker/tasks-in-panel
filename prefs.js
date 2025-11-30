@@ -140,6 +140,19 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         groupTasks.add(hoverRaiseWindow);
         window._settings.bind('hover-raise-window', hoverRaiseWindow, 'active', Gio.SettingsBindFlags.DEFAULT);
 
+        const adjustmentRaiseWindowDelay = new Gtk.Adjustment({
+            lower: 0,
+            upper: 1000,
+            step_increment: 50,
+        });
+
+        const raiseWindowDelay = new Adw.SpinRow({
+            title: 'Raise window on hover delay (ms)',
+            adjustment: adjustmentRaiseWindowDelay,
+        });
+        groupTasks.add(raiseWindowDelay);
+        window._settings.bind('hover-delay', raiseWindowDelay, 'value', Gio.SettingsBindFlags.DEFAULT);
+
         const desaturateIcon = new Adw.SwitchRow({
             title: 'Monochrome icon',
             subtitle: 'Some apps do not have a symbolic icon, so simply monochrome here.',
