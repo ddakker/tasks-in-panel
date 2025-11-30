@@ -5,7 +5,7 @@ import Adw from 'gi://Adw';
 import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 
-export default class PowerProfilePreferences extends ExtensionPreferences {
+export default class TasksInPanelPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         window._settings = this.getSettings();
 

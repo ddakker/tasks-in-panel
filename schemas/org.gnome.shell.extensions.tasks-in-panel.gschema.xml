@@ -10,12 +10,12 @@
         </key>
 
         <key type="b" name="yaru-panel">
-            <default>false</default>
+            <default>true</default>
             <summary>Yaru-like panel</summary>
         </key>
 
         <key type="b" name="accent-panel">
-            <default>true</default>
+            <default>false</default>
             <summary>Accent-colored panel</summary>
         </key>
 
