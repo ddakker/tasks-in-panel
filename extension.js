@@ -406,8 +406,7 @@ const TaskButton = GObject.registerClass(
                 this._windowOnTop = global.display.sort_windows_by_stacking(monitorWindows)?.at(-1);
 
                 this._window?.raise();
-            }
-            else
+            } else
                 this._windowOnTop?.raise();
         }
 

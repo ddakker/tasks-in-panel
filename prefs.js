@@ -149,8 +149,8 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
 
         const adjustmentButtonWidth = new Gtk.Adjustment({
             lower: -1,
-            upper: 512,
-            step_increment: 1,
+            upper: 999,
+            step_increment: 10,
         });
 
         const buttonWidth = new Adw.SpinRow({
