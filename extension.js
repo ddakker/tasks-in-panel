@@ -372,6 +372,9 @@ const TaskButton = GObject.registerClass(
         }
 
         _onClick(event) {
+            if (this._settings?.get_boolean('show-focused-window'))
+                return Clutter.EVENT_PROPAGATE;
+
             const button = event?.get_button();
 
             if (button === Clutter.BUTTON_PRIMARY) {
