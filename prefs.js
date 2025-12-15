@@ -130,6 +130,7 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
 
         const showFocusedWindow = new Adw.SwitchRow({
             title: 'Show focused window only',
+            subtitle: 'Left-click does not toggle window, it opens app menu.',
         });
         groupTasks.add(showFocusedWindow);
         window._settings.bind('show-focused-window', showFocusedWindow, 'active', Gio.SettingsBindFlags.DEFAULT);
