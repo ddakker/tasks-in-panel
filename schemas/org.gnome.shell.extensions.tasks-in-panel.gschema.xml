@@ -59,6 +59,11 @@
             <summary>Show recent applications menu button</summary>
         </key>
 
+        <key type="i" name="recent-apps-list-length">
+            <default>8</default>
+            <summary>Recent applications list maximum length</summary>
+        </key>
+
         <key type="b" name="center-tasks">
             <default>false</default>
             <summary>Move tasks to the center</summary>

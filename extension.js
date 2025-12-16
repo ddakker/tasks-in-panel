@@ -488,6 +488,7 @@ const TaskButton = GObject.registerClass(
                 let recentApps = this._globalRecentApps.recentApps;
                 recentApps = recentApps.filter(item => item !== this._app);
                 recentApps.unshift(this._app);
+                recentApps.length = Math.min(recentApps.length, this._settings?.get_int('recent-apps-list-length') ?? 8);
                 this._globalRecentApps.recentApps = recentApps;
             }
         }

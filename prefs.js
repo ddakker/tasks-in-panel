@@ -101,6 +101,19 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         groupIndicators.add(showRecentAppsMenu);
         window._settings.bind('show-recent-apps-menu', showRecentAppsMenu, 'active', Gio.SettingsBindFlags.DEFAULT);
 
+        const adjustmentRecentAppsListMaxLength = new Gtk.Adjustment({
+            lower: 1,
+            upper: 20,
+            step_increment: 1,
+        });
+
+        const recentAppsListMaxLength = new Adw.SpinRow({
+            title: 'Recent applications list maximum length',
+            adjustment: adjustmentRecentAppsListMaxLength,
+        });
+        groupIndicators.add(recentAppsListMaxLength);
+        window._settings.bind('recent-apps-list-length', recentAppsListMaxLength, 'value', Gio.SettingsBindFlags.DEFAULT);
+
         const centerTasks = new Adw.SwitchRow({
             title: 'Move tasks to the center',
             subtitle: 'Tasks are by default located at the left.',
