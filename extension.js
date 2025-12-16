@@ -382,9 +382,9 @@ const TaskButton = GObject.registerClass(
         }
 
         _makeButtonBox() {
-            this._box = new St.BoxLayout({ reactive: true, track_hover: true, style_class: 'task-box' });
-            if (this._settings?.get_boolean('show-focused-window'))
-                this._box.set_style('background-color: transparent;');
+            this._box = new St.BoxLayout({ reactive: true, track_hover: true });
+            if (!this._settings?.get_boolean('show-focused-window'))
+                this._box.add_style_class_name('task-box');
 
             const buttonWidth = this._settings?.get_int('button-width');
             if (this._settings?.get_boolean('show-window-title') && buttonWidth > -1)
