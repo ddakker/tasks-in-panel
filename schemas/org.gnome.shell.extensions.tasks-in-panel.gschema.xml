@@ -54,6 +54,11 @@
             <summary>Show favorites menu button</summary>
         </key>
 
+        <key type="b" name="show-recent-apps-menu">
+            <default>true</default>
+            <summary>Show recent applications menu button</summary>
+        </key>
+
         <key type="b" name="center-tasks">
             <default>false</default>
             <summary>Move tasks to the center</summary>

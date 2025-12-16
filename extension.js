@@ -23,7 +23,8 @@ import { SystemIndicator } from 'resource:///org/gnome/shell/ui/quickSettings.js
 
 
 const ICON_SIZE = 18; // px
-const FAVORITES_ICON_NAME = 'starred-symbolic'; // favorites symbolic icon name
+const FAVORITES_ICON_NAME = 'starred-symbolic';
+const RECENT_APPS_ICON_NAME = 'document-open-recent-symbolic';
 
 const LightStyleMode = GObject.registerClass(
     class LightStyleMode extends GObject.Object {
@@ -153,7 +154,7 @@ const FavoritesMenuButton = GObject.registerClass(
 
             for (const favorite of favorites) {
                 const item = new PopupMenu.PopupImageMenuItem(favorite?.get_name(), favorite?.icon);
-                this.menu.addMenuItem(item);
+                this.menu?.addMenuItem(item);
 
                 item?.connectObject('activate', () => this._activateFavorite(favorite), this);
             }
@@ -162,6 +163,51 @@ const FavoritesMenuButton = GObject.registerClass(
         _activateFavorite(favorite) {
             if (favorite?.can_open_new_window())
                 favorite?.open_new_window(-1);
+        }
+
+        destroy() {
+            this.menu?.removeAll();
+            AppFavorites.getAppFavorites()?.disconnectObject(this);
+
+            super.destroy();
+        }
+    });
+
+const RecentAppsMenuButton = GObject.registerClass(
+    class RecentAppsMenuButton extends PanelMenu.Button {
+        _init(globalRecentApps) {
+            super._init(0.0);
+
+            this._globalRecentApps = globalRecentApps;
+
+            this._makeButtonBox();
+        }
+
+        _makeButtonBox() {
+            this._box = new St.BoxLayout();
+
+            this._icon = new St.Icon({ icon_name: RECENT_APPS_ICON_NAME, style_class: 'system-status-icon' });
+            this._box.add_child(this._icon);
+
+            this.add_child(this._box);
+        }
+
+        _updateRecentApps() {
+            this.menu?.removeAll();
+
+            const recentApps = this._globalRecentApps.recentApps ?? [];
+
+            for (const app of recentApps) {
+                const item = new PopupMenu.PopupImageMenuItem(app?.get_name(), app?.icon);
+                this.menu?.addMenuItem(item);
+
+                item?.connectObject('activate', () => this._activateApp(app), this);
+            }
+        }
+
+        _activateApp(app) {
+            if (app?.can_open_new_window())
+                app?.open_new_window(-1);
         }
 
         destroy() {
@@ -279,10 +325,11 @@ const WorkspaceButton = GObject.registerClass(
 
 const TaskButton = GObject.registerClass(
     class TaskButton extends PanelMenu.Button {
-        _init(settings, window) {
+        _init(settings, globalRecentApps, window) {
             super._init();
 
             this._settings = settings;
+            this._globalRecentApps = globalRecentApps;
             this._window = window;
 
             this._makeButtonBox();
@@ -436,6 +483,13 @@ const TaskButton = GObject.registerClass(
             this.menu.setApp(this._app);
 
             this._icon.set_icon_size(ICON_SIZE);
+
+            if (this._settings?.get_boolean('show-recent-apps-menu') && this._app.app_info) {
+                let recentApps = this._globalRecentApps.recentApps;
+                recentApps = recentApps.filter(item => item !== this._app);
+                recentApps.unshift(this._app);
+                this._globalRecentApps.recentApps = recentApps;
+            }
         }
 
         _updateDemandsAttention() {
@@ -539,6 +593,9 @@ const TasksInPanel = GObject.registerClass(
             if (this._settings?.get_boolean('show-favorites-menu'))
                 this._initFavoritesMenu();
 
+            if (this._settings?.get_boolean('show-recent-apps-menu'))
+                this._initRecentAppsMenu();
+
             if (this._settings?.get_boolean('show-workspaces-bar'))
                 this._initWorkspacesBar();
         }
@@ -548,6 +605,15 @@ const TasksInPanel = GObject.registerClass(
 
             if (!Main.panel.statusArea['favoritesMenuButton'])
                 Main.panel.addToStatusArea('favoritesMenuButton', this._favoritesMenuButton, 99, 'left');
+        }
+
+        _initRecentAppsMenu() {
+            this._globalRecentApps = { recentApps: [] };
+
+            this._recentAppsMenuButton = new RecentAppsMenuButton(this._globalRecentApps);
+
+            if (!Main.panel.statusArea['recentAppsMenuButton'])
+                Main.panel.addToStatusArea('recentAppsMenuButton', this._recentAppsMenuButton, 99, 'left');
         }
 
         _initTaskBar() {
@@ -581,6 +647,11 @@ const TasksInPanel = GObject.registerClass(
         _destroyFavoritesMenuButton() {
             this._favoritesMenuButton?.destroy();
             this._favoritesMenuButton = null;
+        }
+
+        _destroyRecentAppsMenuButton() {
+            this._recentAppsMenuButton?.destroy();
+            this._recentAppsMenuButton = null;
         }
 
         _destroyTaskbar() {
@@ -641,7 +712,19 @@ const TasksInPanel = GObject.registerClass(
             if (!window || window.skip_taskbar || window.window_type === Meta.WindowType.MODAL_DIALOG)
                 return;
 
-            new TaskButton(this._settings, window);
+            new TaskButton(this._settings, this._globalRecentApps, window);
+
+            if (this._settings?.get_boolean('show-recent-apps-menu')) {
+                if (this._recentAppsTimeout)
+                    GLib.Source.remove(this._recentAppsTimeout);
+
+                this._recentAppsTimeout = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+                    this._recentAppsMenuButton._updateRecentApps();
+
+                    this._recentAppsTimeout = null;
+                    return GLib.SOURCE_REMOVE;
+                });
+            }
         }
 
         _moveDate(active) {
@@ -671,8 +754,19 @@ const TasksInPanel = GObject.registerClass(
             this._disconnectSignals();
 
             this._destroyFavoritesMenuButton();
+            this._destroyRecentAppsMenuButton();
             this._destroyWorkspacesBar();
             this._destroyTaskbar();
+
+            if (this._recentAppsTimeout) {
+                GLib.Source.remove(this._recentAppsTimeout);
+                this._recentAppsTimeout = null;
+            }
+
+            if (this._globalRecentApps) {
+                this._globalRecentApps.recentApps = null;
+                this._globalRecentApps = null;
+            }
         }
     });
 

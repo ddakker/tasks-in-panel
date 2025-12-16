@@ -95,6 +95,12 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         groupIndicators.add(showFavoritesMenu);
         window._settings.bind('show-favorites-menu', showFavoritesMenu, 'active', Gio.SettingsBindFlags.DEFAULT);
 
+        const showRecentAppsMenu = new Adw.SwitchRow({
+            title: 'Show recent applications menu button',
+        });
+        groupIndicators.add(showRecentAppsMenu);
+        window._settings.bind('show-recent-apps-menu', showRecentAppsMenu, 'active', Gio.SettingsBindFlags.DEFAULT);
+
         const centerTasks = new Adw.SwitchRow({
             title: 'Move tasks to the center',
             subtitle: 'Tasks are by default located at the left.',
