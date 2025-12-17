@@ -454,7 +454,7 @@ const TaskButton = GObject.registerClass(
             if (this.hover) {
                 const monitorIndex = this._window?.get_monitor();
                 const monitorWindows = this._window?.get_workspace()?.list_windows()
-                    .filter(w => !w.minimized && w.get_monitor() === monitorIndex);
+                    .filter(window => window.get_monitor() === monitorIndex);
                 this._windowOnTop = global.display.sort_windows_by_stacking(monitorWindows)?.at(-1);
 
                 this._raiseWindowTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._settings?.get_int('hover-delay'), () => {
