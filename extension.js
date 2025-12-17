@@ -129,7 +129,7 @@ const UserIdButton = GObject.registerClass(
 const FavoritesMenuButton = GObject.registerClass(
     class FavoritesMenuButton extends PanelMenu.Button {
         _init() {
-            super._init(0.0);
+            super._init(0.5);
 
             this._makeButtonBox();
 
@@ -176,7 +176,7 @@ const FavoritesMenuButton = GObject.registerClass(
 const RecentAppsMenuButton = GObject.registerClass(
     class RecentAppsMenuButton extends PanelMenu.Button {
         _init(globalRecentApps) {
-            super._init(0.0);
+            super._init(0.5);
 
             this._globalRecentApps = globalRecentApps;
 
