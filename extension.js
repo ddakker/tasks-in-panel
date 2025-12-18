@@ -235,10 +235,13 @@ const WorkspaceButton = GObject.registerClass(
 
             this._workspace = workspace;
 
+            this._mutterSettings = new Gio.Settings({ schema_id: 'org.gnome.mutter' });
+
             this._makeButtonBox();
 
             this._updateIndex();
             this._updateFocus();
+            this._updateOpacity();
 
             this._connectSignals();
         }
@@ -249,7 +252,10 @@ const WorkspaceButton = GObject.registerClass(
                 'workspace-removed', () => this._onWorkspaceRemoved(),
                 'notify::n-workspaces', () => this._onWorkspaceRemoved(),
                 this);
-            this._workspace?.connectObject('notify::workspace-index', () => this._updateIndex(), this);
+            this._workspace?.connectObject(
+                'notify::workspace-index', () => this._updateIndex(),
+                'notify::n-windows', () => this._updateOpacity(),
+                this);
             this.connectObject('button-press-event', (widget, event) => this._onClick(event), this);
         }
 
@@ -282,6 +288,17 @@ const WorkspaceButton = GObject.registerClass(
                 this._workspaceIndex?.remove_style_class_name('workspace-button-active');
                 this._workspaceIndex?.add_style_class_name('workspace-button-inactive');
             }
+
+            this._updateOpacity();
+        }
+
+        _updateOpacity() {
+            const isDynamicWorkspaces = this._mutterSettings?.get_boolean('dynamic-workspaces');
+
+            if (this._workspace?.n_windows === 0 && !this._workspace?.active && !isDynamicWorkspaces)
+                this._workspaceIndex?.add_style_class_name('workspace-button-no-windows');
+            else
+                this._workspaceIndex?.remove_style_class_name('workspace-button-no-windows');
         }
 
         _updateIndex() {
@@ -308,6 +325,8 @@ const WorkspaceButton = GObject.registerClass(
         destroy() {
             this._disconnectSignals();
             this.get_parent()?.remove_child(this);
+
+            this._mutterSettings = null;
 
             super.destroy();
         }
