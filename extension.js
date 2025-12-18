@@ -156,13 +156,8 @@ const FavoritesMenuButton = GObject.registerClass(
                 const item = new PopupMenu.PopupImageMenuItem(favorite?.get_name(), favorite?.icon);
                 this.menu?.addMenuItem(item);
 
-                item?.connectObject('activate', () => this._activateFavorite(favorite), this);
+                item?.connectObject('activate', () => favorite?.activate(), this);
             }
-        }
-
-        _activateFavorite(favorite) {
-            if (favorite?.can_open_new_window())
-                favorite?.open_new_window(-1);
         }
 
         destroy() {
@@ -201,13 +196,8 @@ const RecentAppsMenuButton = GObject.registerClass(
                 const item = new PopupMenu.PopupImageMenuItem(app?.get_name(), app?.icon);
                 this.menu?.addMenuItem(item);
 
-                item?.connectObject('activate', () => this._activateApp(app), this);
+                item?.connectObject('activate', () => app?.activate(), this);
             }
-        }
-
-        _activateApp(app) {
-            if (app?.can_open_new_window())
-                app?.open_new_window(-1);
         }
 
         destroy() {
