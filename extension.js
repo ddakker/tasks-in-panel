@@ -454,7 +454,7 @@ const TaskButton = GObject.registerClass(
 
             this._separator = new St.Label({ text: '—', style_class: 'task-label', y_align: Clutter.ActorAlign.CENTER });
             this._box.add_child(this._separator);
-            this._separator.visible = this._settings?.get_boolean('show-window-app');
+            this._separator.visible = this._settings?.get_boolean('show-window-app') && this._settings?.get_boolean('show-window-title');
 
             this._appName = new St.Label({ style_class: 'task-label', y_align: Clutter.ActorAlign.CENTER });
             this._box.add_child(this._appName);
