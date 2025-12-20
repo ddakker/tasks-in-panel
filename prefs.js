@@ -71,6 +71,13 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         groupIndicators.add(showUserId);
         window._settings.bind('show-user-id', showUserId, 'active', Gio.SettingsBindFlags.DEFAULT);
 
+        const showShowDesktop = new Adw.SwitchRow({
+            title: 'Show show desktop button',
+            subtitle: 'Minimize all windows if at least one window is not minimized.\nUnminimize all windows if all windows are minimized.',
+        });
+        groupIndicators.add(showShowDesktop);
+        window._settings.bind('show-show-desktop', showShowDesktop, 'active', Gio.SettingsBindFlags.DEFAULT);
+
         const moveDate = new Adw.SwitchRow({
             title: 'Move date menu button to the right',
         });

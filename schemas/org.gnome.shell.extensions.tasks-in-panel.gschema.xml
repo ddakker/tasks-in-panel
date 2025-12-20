@@ -34,6 +34,11 @@
             <summary>Show user name</summary>
         </key>
 
+        <key type="b" name="show-show-desktop">
+            <default>true</default>
+            <summary>Show show desktop button</summary>
+        </key>
+
         <key type="b" name="move-date">
             <default>true</default>
             <summary>Move date menu button to the right</summary>

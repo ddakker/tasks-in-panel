@@ -23,6 +23,7 @@ import { SystemIndicator } from 'resource:///org/gnome/shell/ui/quickSettings.js
 
 
 const ICON_SIZE = 18; // px
+const SHOW_DESKTOP_ICON_NAME = 'focus-windows-symbolic';
 const FAVORITES_ICON_NAME = 'starred-symbolic';
 const RECENT_APPS_ICON_NAME = 'document-open-recent-symbolic';
 
@@ -102,6 +103,46 @@ const PowerProfileIndicator = GObject.registerClass(
             this._indicator = null;
 
             super.destroy();
+        }
+    });
+
+const ShowDesktopButton = GObject.registerClass(
+    class ShowDesktopButton extends PanelMenu.Button {
+        _init() {
+            super._init();
+
+            this._makeButtonBox();
+
+            this.connectObject('button-press-event', () => this._toggleAllWindows(), this);
+
+            if (!Main.panel.statusArea['showDesktopButton'])
+                Main.panel.addToStatusArea('showDesktopButton', this, -1);
+        }
+
+        _makeButtonBox() {
+            this._box = new St.BoxLayout();
+
+            this._icon = new St.Icon({ icon_name: SHOW_DESKTOP_ICON_NAME, style_class: 'system-status-icon' });
+            this._box.add_child(this._icon);
+
+            this.add_child(this._box);
+        }
+
+        _toggleAllWindows() {
+            const activeWorkspace = global.workspace_manager.get_active_workspace();
+            const allWindows = activeWorkspace?.list_windows();
+            const notAllWindowsMinimized = allWindows?.some(window => !window?.minimized);
+
+            if (notAllWindowsMinimized) {
+                for (const window of allWindows) {
+                    if (!window?.minimized && window?.can_minimize())
+                        window?.minimize();
+                }
+            } else {
+                for (const window of allWindows) {
+                    window?.unminimize();
+                }
+            }
         }
     });
 
@@ -627,6 +668,9 @@ const TasksInPanel = GObject.registerClass(
 
             if (this._settings?.get_boolean('show-workspaces-bar'))
                 this._initWorkspacesBar();
+
+            if (this._settings?.get_boolean('show-show-desktop'))
+                this._showDesktopButton = new ShowDesktopButton();
         }
 
         _initFavoritesMenu() {
@@ -681,6 +725,11 @@ const TasksInPanel = GObject.registerClass(
         _destroyRecentAppsMenuButton() {
             this._recentAppsMenuButton?.destroy();
             this._recentAppsMenuButton = null;
+        }
+
+        _destroyShowDesktopButton() {
+            this._showDesktopButton?.destroy();
+            this._showDesktopButton = null;
         }
 
         _destroyTaskbar() {
@@ -782,6 +831,7 @@ const TasksInPanel = GObject.registerClass(
 
             this._disconnectSignals();
 
+            this._destroyShowDesktopButton();
             this._destroyFavoritesMenuButton();
             this._destroyRecentAppsMenuButton();
             this._destroyWorkspacesBar();
