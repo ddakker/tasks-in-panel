@@ -414,7 +414,7 @@ const TaskButton = GObject.registerClass(
                 'notify::title', () => this._updateTitle(), GObject.ConnectFlags.AFTER,
                 'notify::urgent', () => this._updateDemandsAttention(), GObject.ConnectFlags.AFTER,
                 'notify::wm-class', () => this._updateApp(), GObject.ConnectFlags.AFTER,
-                'unmanaging', () => this.destroy(), GObject.ConnectFlags.AFTER,
+                'unmanaging', () => this._animatedDestroy(), GObject.ConnectFlags.AFTER,
                 'workspace-changed', () => this._updateVisibility(), GObject.ConnectFlags.AFTER,
                 this);
 
@@ -594,7 +594,7 @@ const TaskButton = GObject.registerClass(
                 && (!this._settings?.get_boolean('show-focused-window') || this._windowHasFocus);
         }
 
-        destroy() {
+        _animatedDestroy() {
             this._disconnectSignals();
 
             if (this._raiseWindowTimeout) {
@@ -612,6 +612,17 @@ const TaskButton = GObject.registerClass(
                 });
             } else
                 super.destroy();
+        }
+
+        destroy() {
+            this._disconnectSignals();
+
+            if (this._raiseWindowTimeout) {
+                GLib.Source.remove(this._raiseWindowTimeout);
+                this._raiseWindowTimeout = null;
+            }
+
+            super.destroy();
         }
     });
 
