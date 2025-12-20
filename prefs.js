@@ -199,5 +199,11 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         });
         groupTasks.add(buttonWidth);
         window._settings.bind('button-width', buttonWidth, 'value', Gio.SettingsBindFlags.DEFAULT);
+
+        const animateOnClose = new Adw.SwitchRow({
+            title: 'Animate on close',
+        });
+        groupTasks.add(animateOnClose);
+        window._settings.bind('animate-on-close', animateOnClose, 'active', Gio.SettingsBindFlags.DEFAULT);
     }
 }

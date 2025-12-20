@@ -561,7 +561,16 @@ const TaskButton = GObject.registerClass(
                 this._raiseWindowTimeout = null;
             }
 
-            super.destroy();
+            if (this._settings?.get_boolean('animate-on-close')) {
+                this.opacity = 0;
+                this._box.ease({
+                    width: 0,
+                    duration: 150,
+                    mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+                    onComplete: () => super.destroy(),
+                });
+            } else
+                super.destroy();
         }
     });
 

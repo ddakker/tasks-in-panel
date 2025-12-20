@@ -114,6 +114,11 @@
             <summary>Task button natural width</summary>
         </key>
 
+        <key type="b" name="animate-on-close">
+            <default>true</default>
+            <summary>Animate on close</summary>
+        </key>
+
     </schema>
 
 </schemalist>
