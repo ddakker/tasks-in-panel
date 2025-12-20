@@ -411,6 +411,14 @@ const TaskButton = GObject.registerClass(
             this._box.add_child(this._title);
             this._title.visible = this._settings?.get_boolean('show-window-title');
 
+            this._separator = new St.Label({ text: '—', style_class: 'task-label', y_align: Clutter.ActorAlign.CENTER });
+            this._box.add_child(this._separator);
+            this._separator.visible = this._settings?.get_boolean('show-window-app');
+
+            this._appName = new St.Label({ style_class: 'task-label', y_align: Clutter.ActorAlign.CENTER });
+            this._box.add_child(this._appName);
+            this._appName.visible = this._settings?.get_boolean('show-window-app');
+
             this.add_child(this._box);
 
             this.setMenu(new AppMenu(this));
@@ -488,6 +496,8 @@ const TaskButton = GObject.registerClass(
                 this._icon.set_gicon(Gio.Icon.new_for_string(wmClass));
             else
                 this._icon.set_gicon(this._app.icon);
+
+            this._appName.text = this._app.get_name() ?? '';
 
             this.menu.setApp(this._app);
 

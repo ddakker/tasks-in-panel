@@ -141,6 +141,12 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         groupTasks.add(showWindowTitle);
         window._settings.bind('show-window-title', showWindowTitle, 'active', Gio.SettingsBindFlags.DEFAULT);
 
+        const showAppName = new Adw.SwitchRow({
+            title: 'Show application name',
+        });
+        groupTasks.add(showAppName);
+        window._settings.bind('show-window-app', showAppName, 'active', Gio.SettingsBindFlags.DEFAULT);
+
         const showOnlyActiveWorkspace = new Adw.SwitchRow({
             title: 'Show on active workspace only',
         });
