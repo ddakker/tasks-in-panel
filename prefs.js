@@ -186,6 +186,13 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         groupTasks.add(raiseWindowDelay);
         window._settings.bind('hover-delay', raiseWindowDelay, 'value', Gio.SettingsBindFlags.DEFAULT);
 
+        const undecoratedButton = new Adw.SwitchRow({
+            title: 'Undecorated button',
+            subtitle: 'Dim opacity if unfocused.',
+        });
+        groupTasks.add(undecoratedButton);
+        window._settings.bind('undecorated-task-buttons', undecoratedButton, 'active', Gio.SettingsBindFlags.DEFAULT);
+
         const desaturateIcon = new Adw.SwitchRow({
             title: 'Monochrome icon',
             subtitle: 'Some apps do not have a symbolic icon, so simply monochrome here.',

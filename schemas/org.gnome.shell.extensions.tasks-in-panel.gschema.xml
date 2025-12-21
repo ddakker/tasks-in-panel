@@ -109,6 +109,11 @@
             <summary>Raise window on hover delay</summary>
         </key>
 
+        <key type="b" name="undecorated-task-buttons">
+            <default>false</default>
+            <summary>Undecorated task buttons</summary>
+        </key>
+
         <key type="b" name="desaturate-icon">
             <default>false</default>
             <summary>Monochrome icon</summary>

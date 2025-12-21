@@ -23,6 +23,7 @@ import { SystemIndicator } from 'resource:///org/gnome/shell/ui/quickSettings.js
 
 
 const ICON_SIZE = 18; // px
+const UNFOCUSED_TASK_BUTTON_OPACITY = 128; // 0...255
 const SHOW_DESKTOP_ICON_NAME = 'focus-windows-symbolic';
 const FAVORITES_ICON_NAME = 'starred-symbolic';
 const RECENT_APPS_ICON_NAME = 'document-open-recent-symbolic';
@@ -433,7 +434,7 @@ const TaskButton = GObject.registerClass(
 
         _makeButtonBox() {
             this._box = new St.BoxLayout({ reactive: true, track_hover: true });
-            if (!this._settings?.get_boolean('show-focused-window'))
+            if (!this._settings?.get_boolean('show-focused-window') && !this._settings?.get_boolean('undecorated-task-buttons'))
                 this._box.add_style_class_name('task-box');
 
             const buttonWidth = this._settings?.get_int('button-width');
@@ -554,7 +555,7 @@ const TaskButton = GObject.registerClass(
         }
 
         _updateDemandsAttention() {
-            if (this._settings?.get_boolean('show-focused-window'))
+            if (this._settings?.get_boolean('show-focused-window') || this._settings?.get_boolean('undecorated-task-buttons'))
                 return;
 
             if (this._window?.demands_attention) {
@@ -573,10 +574,17 @@ const TaskButton = GObject.registerClass(
             if (this._settings?.get_boolean('show-focused-window'))
                 return;
 
-            if (this._windowIsOnActiveWorkspace && this._windowHasFocus)
-                this._box.add_style_class_name('task-box-focus');
-            else
-                this._box.remove_style_class_name('task-box-focus');
+            if (this._windowIsOnActiveWorkspace && this._windowHasFocus) {
+                if (this._settings?.get_boolean('undecorated-task-buttons'))
+                    this.opacity = 255;
+                else
+                    this._box.add_style_class_name('task-box-focus');
+            } else {
+                if (this._settings?.get_boolean('undecorated-task-buttons'))
+                    this.opacity = UNFOCUSED_TASK_BUTTON_OPACITY;
+                else
+                    this._box.remove_style_class_name('task-box-focus');
+            }
         }
 
         _updateTitle() {
