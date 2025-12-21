@@ -608,7 +608,7 @@ const TaskButton = GObject.registerClass(
                     width: 0,
                     duration: 150,
                     mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-                    onComplete: () => super.destroy(),
+                    onStopped: () => super.destroy(),
                 });
             } else
                 super.destroy();
