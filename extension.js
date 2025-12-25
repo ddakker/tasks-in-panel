@@ -64,10 +64,10 @@ const PowerProfileIndicator = GObject.registerClass(
             if (this._toggle)
                 return;
 
-            Main.panel.statusArea.quickSettings?.addExternalIndicator(this);
+            Main.panel.statusArea.quickSettings.addExternalIndicator(this);
             this.get_parent()?.set_child_above_sibling(this, null);
 
-            this._toggle = Main.panel.statusArea.quickSettings?._powerProfiles?.quickSettingsItems[0];
+            this._toggle = Main.panel.statusArea.quickSettings._powerProfiles?.quickSettingsItems[0];
             this._toggle?.bind_property('icon-name', this._indicator, 'icon-name', GObject.BindingFlags.SYNC_CREATE);
         }
 
@@ -157,7 +157,7 @@ const UserIdButton = GObject.registerClass(
             const userId = new St.Label({ text: `${GLib.get_real_name()}  `, y_align: Clutter.ActorAlign.CENTER });
             this.add_child(userId);
 
-            Main.panel.statusArea.quickSettings?.addExternalIndicator(this);
+            Main.panel.statusArea.quickSettings.addExternalIndicator(this);
         }
 
         destroy() {
@@ -175,7 +175,7 @@ const FavoritesMenuButton = GObject.registerClass(
 
             this._makeButtonBox();
 
-            AppFavorites.getAppFavorites()?.connectObject('changed', () => this._updateFavorites(), this);
+            AppFavorites.getAppFavorites().connectObject('changed', () => this._updateFavorites(), this);
         }
 
         _makeButtonBox() {
@@ -512,8 +512,7 @@ const TaskButton = GObject.registerClass(
 
             if (this.hover) {
                 const monitorIndex = this._window?.get_monitor();
-                const monitorWindows = this._window?.get_workspace()?.list_windows()
-                    .filter(window => window.get_monitor() === monitorIndex);
+                const monitorWindows = this._window?.get_workspace()?.list_windows().filter(window => window.get_monitor() === monitorIndex);
                 this._windowOnTop = global.display.sort_windows_by_stacking(monitorWindows)?.at(-1);
 
                 this._raiseWindowTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._settings?.get_int('hover-delay'), () => {
