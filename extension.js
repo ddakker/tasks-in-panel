@@ -386,17 +386,15 @@ const TaskButton = GObject.registerClass(
 
             this._makeButtonBox();
 
+            const side = this._centerTasks ? 'center' : 'left';
+            const windowId = this._window?.get_id();
+            const buttonId = `taskButton${windowId}`;
+            if (windowId && !Main.panel.statusArea[buttonId])
+                Main.panel.addToStatusArea(buttonId, this, 99, side);
+
             this._updateApp();
             this._updateTitle();
             this._updateVisibility();
-
-            const windowId = this._window?.get_id();
-            const buttonId = `taskButton${windowId}`;
-
-            const side = this._centerTasks ? 'center' : 'left';
-
-            if (windowId && !Main.panel.statusArea[buttonId])
-                Main.panel.addToStatusArea(buttonId, this, 99, side);
 
             this._connectSignals();
         }
@@ -413,6 +411,7 @@ const TaskButton = GObject.registerClass(
             this._showWindowIcon = this._settings?.get_boolean('show-window-icon');
             this._desaturateIcon = this._settings?.get_boolean('desaturate-icon');
             this._buttonWidth = this._settings?.get_int('button-width');
+            this._groupWindows = this._settings?.get_boolean('group-windows');
             this._showRecentAppsMenu = this._settings?.get_boolean('show-recent-apps-menu');
             this._recentAppsListLength = this._settings?.get_int('recent-apps-list-length');
             this._animateOnClose = this._settings?.get_boolean('animate-on-close');
@@ -444,6 +443,8 @@ const TaskButton = GObject.registerClass(
             global.display.disconnectObject(this);
 
             this._window?.disconnectObject(this);
+
+            this._app.disconnectObject(this);
         }
 
         _makeButtonBox() {
@@ -525,7 +526,7 @@ const TaskButton = GObject.registerClass(
 
             if (this.hover) {
                 const monitorIndex = this._window?.get_monitor();
-                const monitorWindows = this._window?.get_workspace()?.list_windows().filter(window => window.get_monitor() === monitorIndex);
+                const monitorWindows = this._window?.get_workspace()?.list_windows().filter(w => w.get_monitor() === monitorIndex);
                 this._windowOnTop = global.display.sort_windows_by_stacking(monitorWindows)?.at(-1);
 
                 this._raiseWindowTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._hoverDelay, () => {
@@ -557,11 +558,14 @@ const TaskButton = GObject.registerClass(
 
             if (this._showRecentAppsMenu && this._app.app_info) {
                 let recentApps = this._globalRecentApps.recentApps;
-                recentApps = recentApps.filter(item => item !== this._app);
+                recentApps = recentApps.filter(a => a !== this._app);
                 recentApps.unshift(this._app);
                 recentApps.length = Math.min(recentApps.length, this._recentAppsListLength ?? 8);
                 this._globalRecentApps.recentApps = recentApps;
             }
+
+            if (this._groupWindows)
+                this._app.connectObject('windows-changed', () => this._updateVisibility(), this);
         }
 
         _updateDemandsAttention() {
@@ -579,7 +583,7 @@ const TaskButton = GObject.registerClass(
 
         _updateFocus() {
             const focusWindow = global.display.focus_window;
-            this._windowHasFocus = this._window?.appears_focused || (focusWindow?.get_transient_for() === this._window);
+            this._windowHasFocus = this._window?.appears_focused || focusWindow?.get_transient_for() === this._window;
 
             if (this._showFocusedWindow)
                 return;
@@ -589,7 +593,9 @@ const TaskButton = GObject.registerClass(
             if (this._undecoratedTaskButtons)
                 this.opacity = isFocused ? 255 : UNFOCUSED_TASK_BUTTON_OPACITY;
             else
-                isFocused ? this._box.add_style_class_name('task-box-focus') : this._box.remove_style_class_name('task-box-focus');
+                isFocused
+                    ? this._box.add_style_class_name('task-box-focus')
+                    : this._box.remove_style_class_name('task-box-focus');
         }
 
         _updateTitle() {
@@ -597,14 +603,26 @@ const TaskButton = GObject.registerClass(
         }
 
         _updateVisibility() {
-            this._activeWorkspace = global.workspace_manager.get_active_workspace();
-            this._windowIsOnActiveWorkspace = this._window?.located_on_workspace(this._activeWorkspace);
+            const activeWorkspace = global.workspace_manager.get_active_workspace();
+            this._windowIsOnActiveWorkspace = this._window?.located_on_workspace(activeWorkspace);
+
+            if (this._groupWindows) {
+                const appWindows = (this._app?.get_windows() ?? []).filter(w => w.window_type !== Meta.WindowType.MODAL_DIALOG);
+                const appWindowsOnActiveWorkspace = appWindows?.filter(w => w.located_on_workspace(activeWorkspace));
+                const candidateWindows = appWindowsOnActiveWorkspace?.length > 0 ? appWindowsOnActiveWorkspace : appWindows;
+                const focusWindow = global.display.focus_window;
+                const appWindowOnTop = focusWindow && candidateWindows?.includes(focusWindow)
+                    ? focusWindow
+                    : global.display.sort_windows_by_stacking(candidateWindows).at(-1);
+                this._isAppWindowOnTop = this._window === appWindowOnTop || this._window.get_transient_for() === appWindowOnTop;
+            }
 
             this._updateFocus();
 
             this.visible = !this._window?.skip_taskbar
                 && (!this._showActiveWorkspace || this._windowIsOnActiveWorkspace)
-                && (!this._showFocusedWindow || this._windowHasFocus);
+                && (!this._showFocusedWindow || this._windowHasFocus)
+                && (!this._groupWindows || this._isAppWindowOnTop);
         }
 
         _animatedDestroy() {

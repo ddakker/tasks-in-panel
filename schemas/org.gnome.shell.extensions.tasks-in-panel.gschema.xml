@@ -99,6 +99,11 @@
             <summary>Show task for focused window only</summary>
         </key>
 
+        <key type="b" name="group-windows">
+            <default>false</default>
+            <summary>Group windows by app</summary>
+        </key>
+
         <key type="b" name="hover-raise-window">
             <default>true</default>
             <summary>Raise window on task hover</summary>

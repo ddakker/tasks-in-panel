@@ -167,6 +167,13 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         groupTasks.add(showFocusedWindow);
         window._settings.bind('show-focused-window', showFocusedWindow, 'active', Gio.SettingsBindFlags.DEFAULT);
 
+        const groupWindows = new Adw.SwitchRow({
+            title: 'Group by app',
+            subtitle: 'Top app window is shown.\nOther windows can be accessed from the app menu.',
+        });
+        groupTasks.add(groupWindows);
+        window._settings.bind('group-windows', groupWindows, 'active', Gio.SettingsBindFlags.DEFAULT);
+
         const hoverRaiseWindow = new Adw.SwitchRow({
             title: 'Raise window on hover',
         });
