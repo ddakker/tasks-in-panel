@@ -244,7 +244,6 @@ const RecentAppsMenuButton = GObject.registerClass(
 
         destroy() {
             this.menu?.removeAll();
-            AppFavorites.getAppFavorites()?.disconnectObject(this);
 
             super.destroy();
         }
@@ -443,8 +442,7 @@ const TaskButton = GObject.registerClass(
             global.display.disconnectObject(this);
 
             this._window?.disconnectObject(this);
-
-            this._app.disconnectObject(this);
+            this._app?.disconnectObject(this);
         }
 
         _makeButtonBox() {
@@ -529,6 +527,9 @@ const TaskButton = GObject.registerClass(
                 const monitorWindows = this._window?.get_workspace()?.list_windows().filter(w => w.get_monitor() === monitorIndex);
                 this._windowOnTop = global.display.sort_windows_by_stacking(monitorWindows)?.at(-1);
 
+                if (this._raiseWindowTimeout)
+                    GLib.Source.remove(this._raiseWindowTimeout);
+
                 this._raiseWindowTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._hoverDelay, () => {
                     if (this.hover)
                         this._window?.raise();
@@ -536,8 +537,14 @@ const TaskButton = GObject.registerClass(
                     this._raiseWindowTimeout = null;
                     return GLib.SOURCE_REMOVE;
                 });
-            } else
+            } else {
+                if (this._raiseWindowTimeout) {
+                    GLib.Source.remove(this._raiseWindowTimeout);
+                    this._raiseWindowTimeout = null;
+                }
+
                 this._windowOnTop?.raise();
+            }
         }
 
         _updateApp() {
@@ -589,7 +596,6 @@ const TaskButton = GObject.registerClass(
                 return;
 
             const isFocused = this._windowIsOnActiveWorkspace && this._windowHasFocus;
-
             if (this._undecoratedTaskButtons)
                 this.opacity = isFocused ? 255 : UNFOCUSED_TASK_BUTTON_OPACITY;
             else
