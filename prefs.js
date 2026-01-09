@@ -9,19 +9,16 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         window._settings = this.getSettings();
 
-        const page = new Adw.PreferencesPage({
-            title: 'Tasks in Panel extension',
-            icon_name: 'dialog-information-symbolic',
-        });
-        window.add(page);
-
-
         /* Global */
 
-        const groupGlobal = new Adw.PreferencesGroup({
+        const pageGlobal = new Adw.PreferencesPage({
             title: 'Global',
+            icon_name: 'view-list-symbolic',
         });
-        page.add(groupGlobal);
+        window.add(pageGlobal);
+
+        const groupGlobal = new Adw.PreferencesGroup();
+        pageGlobal.add(groupGlobal);
 
         const lightStyle = new Adw.SwitchRow({
             title: 'Light style mode',
@@ -53,10 +50,14 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
 
         /* Indicators */
 
-        const groupIndicators = new Adw.PreferencesGroup({
+        const pageIndicators = new Adw.PreferencesPage({
             title: 'Indicators',
+            icon_name: 'view-list-symbolic',
         });
-        page.add(groupIndicators);
+        window.add(pageIndicators);
+
+        const groupIndicators = new Adw.PreferencesGroup();
+        pageIndicators.add(groupIndicators);
 
         const showPowerProfile = new Adw.SwitchRow({
             title: 'Show power profile indicator',
@@ -131,10 +132,14 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
 
         /* Tasks */
 
-        const groupTasks = new Adw.PreferencesGroup({
+        const pageTasks = new Adw.PreferencesPage({
             title: 'Tasks',
+            icon_name: 'view-list-symbolic',
         });
-        page.add(groupTasks);
+        window.add(pageTasks);
+
+        const groupTasks = new Adw.PreferencesGroup();
+        pageTasks.add(groupTasks);
 
         const showWindowIcon = new Adw.SwitchRow({
             title: 'Show window icon',
