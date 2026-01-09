@@ -620,7 +620,7 @@ const TaskButton = GObject.registerClass(
                 const appWindowOnTop = focusWindow && candidateWindows?.includes(focusWindow)
                     ? focusWindow
                     : global.display.sort_windows_by_stacking(candidateWindows).at(-1);
-                this._isAppWindowOnTop = this._window === appWindowOnTop || this._window.get_transient_for() === appWindowOnTop;
+                this._isAppWindowOnTop = this._window === appWindowOnTop || this._window?.get_transient_for() === appWindowOnTop;
             }
 
             this._updateFocus();
