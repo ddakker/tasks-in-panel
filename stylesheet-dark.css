@@ -62,10 +62,6 @@
   margin-right: 6px;
 }
 
-.panel-yaru-like {
-  background-color: rgba(24, 24, 24, 1);
-}
-
 .panel-yaru-like .panel-button,
 .panel-yaru-like .panel-button * {
   font-weight: normal;

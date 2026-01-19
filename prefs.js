@@ -1,4 +1,5 @@
 import Gio from 'gi://Gio';
+import Gdk from 'gi://Gdk';
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 
@@ -28,18 +29,47 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         window._settings.bind('light-style', lightStyle, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         const yaruPanel = new Adw.SwitchRow({
-            title: 'Yaru-like panel',
-            subtitle: 'Dark grey or white background, normal-weighted fonts.',
+            title: 'Normal-weighted fonts.',
         });
         groupGlobal.add(yaruPanel);
         window._settings.bind('yaru-panel', yaruPanel, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         const accentPanel = new Adw.SwitchRow({
-            title: 'Accent-colored panel',
+            title: 'Use accent color',
             subtitle: 'Background color is based on GNOME accent color.',
         });
         groupGlobal.add(accentPanel);
         window._settings.bind('accent-panel', accentPanel, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+        const UseBackgroundColor = new Adw.SwitchRow({
+            title: 'Use custom background color',
+        });
+        groupGlobal.add(UseBackgroundColor);
+        window._settings.bind('use-background-color', UseBackgroundColor, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+        const backgroundColor = new Adw.ActionRow({
+            title: 'Custom background color',
+        });
+        groupGlobal.add(backgroundColor);
+
+        const colorButton = new Gtk.ColorButton({
+            valign: Gtk.Align.CENTER,
+            use_alpha: true,
+        });
+
+        const colorString = window._settings.get_string('background-color');
+        const rgba = new Gdk.RGBA();
+        rgba.parse(colorString);
+        colorButton.set_rgba(rgba);
+
+        colorButton.connect('color-set', () => {
+            const newColor = colorButton.get_rgba();
+            const colorString = `rgba(${Math.round(newColor.red * 255)},${Math.round(newColor.green * 255)},${Math.round(newColor.blue * 255)},${newColor.alpha})`;
+            window._settings.set_string('background-color', colorString);
+        });
+
+        backgroundColor.add_suffix(colorButton);
+        backgroundColor.activatable_widget = colorButton;
 
         const scrollPanel = new Adw.SwitchRow({
             title: 'Scroll on panel to switch workspace',

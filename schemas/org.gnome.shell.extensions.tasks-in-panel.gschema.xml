@@ -11,12 +11,22 @@
 
         <key type="b" name="yaru-panel">
             <default>true</default>
-            <summary>Yaru-like panel</summary>
+            <summary>Normal-weigthed fonts</summary>
         </key>
 
         <key type="b" name="accent-panel">
             <default>false</default>
-            <summary>Accent-colored panel</summary>
+            <summary>Use accent color</summary>
+        </key>
+
+        <key type="b" name="use-background-color">
+            <default>false</default>
+            <summary>Custom background color</summary>
+        </key>
+
+        <key name="background-color" type="s">
+            <default>"rgba(0,0,0,1)"</default>
+            <summary>Custom background color</summary>
         </key>
 
         <key type="b" name="scroll-panel">
