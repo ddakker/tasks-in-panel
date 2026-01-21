@@ -127,6 +127,13 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         groupIndicators.add(showWorkspacesBar);
         window._settings.bind('show-workspaces-bar', showWorkspacesBar, 'active', Gio.SettingsBindFlags.DEFAULT);
 
+        const showPlusMinus = new Adw.SwitchRow({
+            title: 'Show +/- to add/remove workspace',
+            subtitle: 'Not displayed if dynamic workspaces GNOME setting is active.\nMinus removes the active workspace.',
+        });
+        groupIndicators.add(showPlusMinus);
+        window._settings.bind('show-plus-minus', showPlusMinus, 'active', Gio.SettingsBindFlags.DEFAULT);
+
         const showFavoritesMenu = new Adw.SwitchRow({
             title: 'Show favorites menu button',
         });

@@ -251,18 +251,57 @@ const RecentAppsMenuButton = GObject.registerClass(
 
 const WorkspacesBar = GObject.registerClass(
     class WorkspacesBar extends PanelMenu.Button {
-        _init() {
+        _init(settings) {
             super._init();
             this.reactive = false;
 
+            this._settings = settings;
+
+            const mutterSettings = new Gio.Settings({ schema_id: 'org.gnome.mutter' });
+            const isDynamicWorkspaces = mutterSettings?.get_boolean('dynamic-workspaces');
+
             this._box = new St.BoxLayout();
+
+            if (!isDynamicWorkspaces && this._settings?.get_boolean('show-plus-minus'))
+                this._makeControlsBox();
+
             this.add_child(this._box);
 
             if (!Main.panel.statusArea['workspacesBarButton'])
                 Main.panel.addToStatusArea('workspacesBarButton', this, 0, 'left');
         }
 
+        _makeControlsBox() {
+            this._controlsBox = new St.BoxLayout({ y_align: Clutter.ActorAlign.CENTER });
+            this._controlsBox.add_style_class_name('plus-minus');
+
+            this._plusLabel = new St.Label({ reactive: true, text: '+', });
+            this._minusLabel = new St.Label({ reactive: true, text: '−', });
+
+            this._controlsBox.add_child(this._plusLabel);
+            this._controlsBox.add_child(this._minusLabel);
+
+            this._plusLabel.connectObject('button-press-event', () => this._addWorkspace(), this);
+            this._minusLabel.connectObject('button-press-event', () => this._removeWorkspace(), this);
+
+            this._box.add_child(this._controlsBox);
+        }
+
+        _addWorkspace() {
+            global.workspace_manager.append_new_workspace(false, global.get_current_time());
+        }
+
+        _removeWorkspace() {
+            if (global.workspace_manager.n_workspaces > 1) {
+                const activeWorkspace = global.workspace_manager.get_active_workspace();
+                global.workspace_manager.remove_workspace(activeWorkspace, global.get_current_time());
+            }
+        }
+
         destroy() {
+            this._plusLabel?.disconnectObject(this);
+            this._minusLabel?.disconnectObject(this);
+
             this._box.destroy_all_children();
 
             super.destroy();
@@ -276,8 +315,8 @@ const WorkspaceButton = GObject.registerClass(
 
             this._workspace = workspace;
 
-            this._mutterSettings = new Gio.Settings({ schema_id: 'org.gnome.mutter' });
-            this._isDynamicWorkspaces = this._mutterSettings?.get_boolean('dynamic-workspaces');
+            const mutterSettings = new Gio.Settings({ schema_id: 'org.gnome.mutter' });
+            this._isDynamicWorkspaces = mutterSettings?.get_boolean('dynamic-workspaces');
 
             this._makeButtonBox();
 
@@ -365,8 +404,6 @@ const WorkspaceButton = GObject.registerClass(
         destroy() {
             this._disconnectSignals();
             this.get_parent()?.remove_child(this);
-
-            this._mutterSettings = null;
 
             super.destroy();
         }
@@ -757,7 +794,7 @@ const TasksInPanel = GObject.registerClass(
 
         _initWorkspacesBar() {
             this._makeWorkspacesBarTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
-                this._workspacesBar = new WorkspacesBar();
+                this._workspacesBar = new WorkspacesBar(this._settings);
 
                 const workspacesNumber = global.workspace_manager.n_workspaces;
 
@@ -922,12 +959,18 @@ export default class TasksInPanelExtension extends Extension {
         this._settings = this.getSettings();
         this._settings?.connectObject('changed', () => this._restart(), this);
 
+        this._mutterSettings = new Gio.Settings({ schema_id: 'org.gnome.mutter' });
+        this._mutterSettings?.connectObject('changed::dynamic-workspaces', () => this._restart(), this);
+
         this._tasksInPanel = new TasksInPanel(this._settings);
     }
 
     disable() {
         this._settings?.disconnectObject(this);
         this._settings = null;
+
+        this._mutterSettings?.disconnectObject(this);
+        this._mutterSettings = null;
 
         this._tasksInPanel?.destroy();
         this._tasksInPanel = null;

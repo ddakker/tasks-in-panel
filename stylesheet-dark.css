@@ -1,3 +1,10 @@
+.plus-minus {
+  padding-left: 0px;
+  padding-right: 8px;
+
+  spacing: 4px;
+}
+
 .workspace-button {
   border-radius: 4px;
 

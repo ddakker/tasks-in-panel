@@ -64,6 +64,11 @@
             <summary>Show workspaces bar</summary>
         </key>
 
+        <key type="b" name="show-plus-minus">
+            <default>true</default>
+            <summary>Show +/- to add/remove workspace</summary>
+        </key>
+
         <key type="b" name="show-favorites-menu">
             <default>true</default>
             <summary>Show favorites menu button</summary>
