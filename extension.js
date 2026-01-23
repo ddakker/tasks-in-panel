@@ -753,6 +753,7 @@ const TasksInPanel = GObject.registerClass(
                 this._powerProfileIndicator = new PowerProfileIndicator();
 
             this._moveDate(this._settings?.get_boolean('move-date'));
+            Main.panel._updatePanel();
 
             if (this._settings?.get_boolean('show-favorites-menu'))
                 this._initFavoritesMenu();
@@ -910,8 +911,6 @@ const TasksInPanel = GObject.registerClass(
                 panel.right = panel.right.filter(item => item !== 'dateMenu');
                 panel.center.unshift('dateMenu');
             }
-
-            Main.panel._updatePanel();
         }
 
         destroy() {
@@ -933,6 +932,8 @@ const TasksInPanel = GObject.registerClass(
             this._destroyRecentAppsMenuButton();
             this._destroyWorkspacesBar();
             this._destroyTaskbar();
+
+            Main.panel._updatePanel();
 
             if (this._recentAppsTimeout) {
                 GLib.Source.remove(this._recentAppsTimeout);
