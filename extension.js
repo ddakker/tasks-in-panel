@@ -1,6 +1,6 @@
 //    Tasks in panel
 //    GNOME Shell extension
-//    @fthx 2025
+//    @fthx 2026
 //    Light style mode copied from @fmuellner GNOME official extension
 //    Power profile indicator copied from @fthx dedicated extension (help of @fmuellner)
 
@@ -57,7 +57,7 @@ const PowerProfileIndicator = GObject.registerClass(
             this._setIcon();
             this.get_parent()?.connectObject('notify::allocation', () => this._setIcon(), this);
 
-            this.connectObject('scroll-event', (actor, event) => this._onScroll(event), this);
+            this.connect('scroll-event', (actor, event) => this._onScroll(event));
         }
 
         _setIcon() {
@@ -114,7 +114,7 @@ const ShowDesktopButton = GObject.registerClass(
 
             this._makeButtonBox();
 
-            this.connectObject('button-press-event', () => this._toggleAllWindows(), this);
+            this.connect('button-press-event', () => this._toggleAllWindows());
 
             if (!Main.panel.statusArea['showDesktopButton'])
                 Main.panel.addToStatusArea('showDesktopButton', this, -1);
@@ -198,7 +198,7 @@ const FavoritesMenuButton = GObject.registerClass(
                 const item = new PopupMenu.PopupImageMenuItem(favorite?.get_name(), favorite?.icon);
                 this.menu?.addMenuItem(item);
 
-                item?.connectObject('activate', () => favorite?.activate(), this);
+                item?.connect('activate', () => favorite?.activate());
             }
         }
 
@@ -281,8 +281,8 @@ const WorkspacesBar = GObject.registerClass(
             this._controlsBox.add_child(this._plusLabel);
             this._controlsBox.add_child(this._minusLabel);
 
-            this._plusLabel.connectObject('button-press-event', () => this._addWorkspace(), this);
-            this._minusLabel.connectObject('button-press-event', () => this._removeWorkspace(), this);
+            this._plusLabel.connect('button-press-event', () => this._addWorkspace());
+            this._minusLabel.connect('button-press-event', () => this._removeWorkspace());
 
             this._box.add_child(this._controlsBox);
         }
@@ -299,9 +299,6 @@ const WorkspacesBar = GObject.registerClass(
         }
 
         destroy() {
-            this._plusLabel?.disconnectObject(this);
-            this._minusLabel?.disconnectObject(this);
-
             this._box.destroy_all_children();
 
             super.destroy();
@@ -337,7 +334,7 @@ const WorkspaceButton = GObject.registerClass(
                 'notify::workspace-index', () => this._updateIndex(),
                 'notify::n-windows', () => this._updateOpacity(),
                 this);
-            this.connectObject('button-press-event', (widget, event) => this._onClick(event), this);
+            this.connect('button-press-event', (widget, event) => this._onClick(event));
         }
 
         _disconnectSignals() {
@@ -468,10 +465,8 @@ const TaskButton = GObject.registerClass(
                 'workspace-changed', () => this._updateVisibility(), GObject.ConnectFlags.AFTER,
                 this);
 
-            this.connectObject(
-                'notify::hover', () => this._onHover(),
-                'button-press-event', (actor, event) => this._onClick(event),
-                this);
+            this.connect('notify::hover', () => this._onHover());
+            this.connect('button-press-event', (actor, event) => this._onClick(event));
         }
 
         _disconnectSignals() {
@@ -593,12 +588,11 @@ const TaskButton = GObject.registerClass(
             const wmClass = this._window?.wm_class;
             const icon = wmClass?.startsWith('chrome') ? Gio.Icon.new_for_string(wmClass) : this._app.icon;
             this._icon.set_gicon(icon);
+            this._icon.set_icon_size(ICON_SIZE);
 
             this._appName.text = this._app.get_name() ?? '';
 
             this.menu.setApp(this._app);
-
-            this._icon.set_icon_size(ICON_SIZE);
 
             if (this._showRecentAppsMenu && this._app.app_info) {
                 let recentApps = this._globalRecentApps.recentApps;
@@ -634,7 +628,7 @@ const TaskButton = GObject.registerClass(
 
             const isFocused = this._windowIsOnActiveWorkspace && this._windowHasFocus;
             if (this._undecoratedTaskButtons)
-                this.opacity = isFocused ? 255 : UNFOCUSED_TASK_BUTTON_OPACITY;
+                this._box.opacity = isFocused ? 255 : UNFOCUSED_TASK_BUTTON_OPACITY;
             else
                 isFocused
                     ? this._box.add_style_class_name('task-box-focus')
