@@ -29,7 +29,7 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         window._settings.bind('light-style', lightStyle, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         const yaruPanel = new Adw.SwitchRow({
-            title: 'Normal-weighted fonts.',
+            title: 'Normal-weighted fonts',
         });
         groupGlobal.add(yaruPanel);
         window._settings.bind('yaru-panel', yaruPanel, 'active', Gio.SettingsBindFlags.DEFAULT);
