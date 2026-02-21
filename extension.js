@@ -738,8 +738,6 @@ const TasksInPanel = GObject.registerClass(
                 Main.panel.connectObject('style-changed', () => Main.panel.set_style(style), this);
             }
 
-            Main.panel.statusArea.activities.visible = this._settings?.get_boolean('show-activities');
-
             if (this._settings?.get_boolean('show-user-id'))
                 this._userIdButton = new UserIdButton();
 
@@ -748,6 +746,9 @@ const TasksInPanel = GObject.registerClass(
 
             this._moveDate(this._settings?.get_boolean('move-date'));
             Main.panel._updatePanel();
+
+            if (!this._settings?.get_boolean('show-activities'))
+                Main.panel.statusArea.activities?.destroy();
 
             if (this._settings?.get_boolean('show-favorites-menu'))
                 this._initFavoritesMenu();
@@ -916,7 +917,6 @@ const TasksInPanel = GObject.registerClass(
             if (this._settings?.get_boolean('use-background-color'))
                 Main.panel.set_style('background-color: black;');
 
-            Main.panel.statusArea.activities.visible = true;
             this._userIdButton?.destroy();
             this._powerProfileIndicator?.destroy();
             this._moveDate(false);
