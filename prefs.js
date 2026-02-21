@@ -41,11 +41,11 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         groupGlobal.add(accentPanel);
         window._settings.bind('accent-panel', accentPanel, 'active', Gio.SettingsBindFlags.DEFAULT);
 
-        const UseBackgroundColor = new Adw.SwitchRow({
+        const useBackgroundColor = new Adw.SwitchRow({
             title: 'Use custom background color',
         });
-        groupGlobal.add(UseBackgroundColor);
-        window._settings.bind('use-background-color', UseBackgroundColor, 'active', Gio.SettingsBindFlags.DEFAULT);
+        groupGlobal.add(useBackgroundColor);
+        window._settings.bind('use-background-color', useBackgroundColor, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         const backgroundColor = new Adw.ActionRow({
             title: 'Custom background color',
