@@ -748,7 +748,7 @@ const TasksInPanel = GObject.registerClass(
             Main.panel._updatePanel();
 
             if (!this._settings?.get_boolean('show-activities'))
-                Main.panel.statusArea.activities?.destroy();
+                Main.panel.statusArea.activities?.hide();
 
             if (this._settings?.get_boolean('show-favorites-menu'))
                 this._initFavoritesMenu();
@@ -919,6 +919,7 @@ const TasksInPanel = GObject.registerClass(
 
             this._userIdButton?.destroy();
             this._powerProfileIndicator?.destroy();
+            Main.panel.statusArea.activities?.show();
             this._moveDate(false);
 
             this._destroyShowDesktopButton();
