@@ -64,7 +64,7 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
 
         colorButton.connect('color-set', () => {
             const newColor = colorButton.get_rgba();
-            const colorString = `rgba(${Math.round(newColor.red * 255)},${Math.round(newColor.green * 255)},${Math.round(newColor.blue * 255)},${newColor.alpha})`;
+            const colorString = newColor.to_string();
             window._settings.set_string('background-color', colorString);
         });
 
