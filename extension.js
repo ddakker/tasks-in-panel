@@ -466,7 +466,7 @@ const TaskButton = GObject.registerClass(
                 this);
 
             this.connect('notify::hover', () => this._onHover());
-            this.connect('button-press-event', (actor, event) => this._onClick(event));
+            this.connect('button-release-event', (actor, event) => this._onClick(event));
         }
 
         _disconnectSignals() {
@@ -524,30 +524,30 @@ const TaskButton = GObject.registerClass(
         }
 
         _onClick(event) {
-            if (this._showFocusedWindow)
-                return Clutter.EVENT_PROPAGATE;
-
             const button = event?.get_button();
 
-            if (button === Clutter.BUTTON_PRIMARY) {
-                this.menu?.close();
-
-                this._toggleWindow();
-
-                return Clutter.EVENT_STOP;
+            switch (button) {
+                case Clutter.BUTTON_PRIMARY:
+                    if (this._showFocusedWindow)
+                        this.menu?.toggle();
+                    else
+                        this._toggleWindow();
+                    return Clutter.EVENT_STOP;
+                    break;
+                case Clutter.BUTTON_SECONDARY:
+                    this.menu?.toggle();
+                    return Clutter.EVENT_STOP;
+                    break;
+                case Clutter.BUTTON_MIDDLE:
+                    if (this._app?.can_open_new_window())
+                        this._app?.open_new_window(-1);
+                    Main.overview.hide();
+                    return Clutter.EVENT_STOP;
+                    break;
+                default:
+                    return Clutter.EVENT_PROPAGATE;
+                    break;
             }
-
-            if (button === Clutter.BUTTON_MIDDLE) {
-                this.menu?.close();
-
-                if (this._app?.can_open_new_window())
-                    this._app?.open_new_window(-1);
-                Main.overview.hide();
-
-                return Clutter.EVENT_STOP;
-            }
-
-            return Clutter.EVENT_PROPAGATE;
         }
 
         _onHover() {
@@ -680,6 +680,10 @@ const TaskButton = GObject.registerClass(
                 });
             } else
                 super.destroy();
+        }
+
+        vfunc_event(event) {
+            return Clutter.EVENT_PROPAGATE;
         }
 
         destroy() {
