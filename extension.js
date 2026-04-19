@@ -811,47 +811,6 @@ const TasksInPanel = GObject.registerClass(
             });
         }
 
-        _destroyFavoritesMenuButton() {
-            this._favoritesMenuButton?.destroy();
-            this._favoritesMenuButton = null;
-        }
-
-        _destroyRecentAppsMenuButton() {
-            this._recentAppsMenuButton?.destroy();
-            this._recentAppsMenuButton = null;
-        }
-
-        _destroyShowDesktopButton() {
-            this._showDesktopButton?.destroy();
-            this._showDesktopButton = null;
-        }
-
-        _destroyTaskbar() {
-            if (this._makeTaskBarTimeout) {
-                GLib.Source.remove(this._makeTaskBarTimeout);
-                this._makeTaskBarTimeout = null;
-            }
-
-            for (const box of [Main.panel._leftBox, Main.panel._centerBox]) {
-                for (const bin of box.get_children()) {
-                    const button = bin?.child;
-
-                    if (button && button instanceof TaskButton)
-                        button.destroy();
-                }
-            }
-        }
-
-        _destroyWorkspacesBar() {
-            if (this._makeWorkspacesBarTimeout) {
-                GLib.Source.remove(this._makeWorkspacesBarTimeout);
-                this._makeWorkspacesBarTimeout = null;
-            }
-
-            this._workspacesBar?.destroy();
-            this._workspacesBar = null;
-        }
-
         _makeTaskbar() {
             const workspacesNumber = global.workspace_manager.n_workspaces;
 
@@ -912,25 +871,67 @@ const TasksInPanel = GObject.registerClass(
             }
         }
 
+        _destroyTaskbar() {
+            if (this._makeTaskBarTimeout) {
+                GLib.Source.remove(this._makeTaskBarTimeout);
+                this._makeTaskBarTimeout = null;
+            }
+
+            for (const box of [Main.panel._leftBox, Main.panel._centerBox]) {
+                for (const bin of box.get_children()) {
+                    const button = bin?.child;
+
+                    if (button && button instanceof TaskButton)
+                        button.destroy();
+                }
+            }
+        }
+
+        _destroyWorkspacesBar() {
+            if (this._makeWorkspacesBarTimeout) {
+                GLib.Source.remove(this._makeWorkspacesBarTimeout);
+                this._makeWorkspacesBarTimeout = null;
+            }
+
+            this._workspacesBar?.destroy();
+            this._workspacesBar = null;
+        }
+
+        _destroyItems() {
+            this._userIdButton?.destroy();
+            this._userIdButton = null;
+
+            this._powerProfileIndicator?.destroy();
+            this._powerProfileIndicator = null;
+
+            this._showDesktopButton?.destroy();
+            this._showDesktopButton = null;
+
+            this._favoritesMenuButton?.destroy();
+            this._favoritesMenuButton = null;
+
+            this._recentAppsMenuButton?.destroy();
+            this._recentAppsMenuButton = null;
+
+            this._destroyWorkspacesBar();
+            this._destroyTaskbar();
+        }
+
         destroy() {
             this._disconnectSignals();
 
             this._lightStyleMode?.destroy();
+            this._lightStyleMode = null;
+
             Main.panel.remove_style_class_name('panel-yaru-like');
             Main.panel.remove_style_class_name('panel-accent');
             if (this._settings?.get_boolean('use-background-color'))
                 Main.panel.set_style('background-color: black;');
 
-            this._userIdButton?.destroy();
-            this._powerProfileIndicator?.destroy();
             Main.panel.statusArea.activities?.show();
             this._moveDate(false);
 
-            this._destroyShowDesktopButton();
-            this._destroyFavoritesMenuButton();
-            this._destroyRecentAppsMenuButton();
-            this._destroyWorkspacesBar();
-            this._destroyTaskbar();
+            this._destroyItems();
 
             Main.panel._updatePanel();
 
