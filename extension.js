@@ -2,7 +2,6 @@
 //    GNOME Shell extension
 //    @fthx 2026
 //    Light style mode copied from @fmuellner GNOME official extension
-//    Power profile indicator copied from @fthx dedicated extension (help of @fmuellner)
 
 
 import Clutter from 'gi://Clutter';
@@ -54,7 +53,11 @@ const ShowDesktopButton = GObject.registerClass(
 
             this._makeButtonBox();
 
-            this.connect('button-press-event', () => this._toggleAllWindows());
+            if (this._clickGesture)
+                this.remove_action(this._clickGesture);
+            this._clickGesture = new Clutter.ClickGesture();
+            this._clickGesture.connect('recognize', () => this._toggleAllWindows());
+            this.add_action(this._clickGesture);
 
             if (!Main.panel.statusArea['showDesktopButton'])
                 Main.panel.addToStatusArea('showDesktopButton', this, -1);
@@ -215,14 +218,14 @@ const WorkspacesBar = GObject.registerClass(
             this._controlsBox = new St.BoxLayout({ y_align: Clutter.ActorAlign.CENTER });
             this._controlsBox.add_style_class_name('plus-minus');
 
-            this._plusLabel = new St.Label({ reactive: true, text: '+', });
-            this._minusLabel = new St.Label({ reactive: true, text: '−', });
+            this._plusButton = new St.Button({ label: '+' });
+            this._minusButton = new St.Button({ label: '−' });
 
-            this._controlsBox.add_child(this._plusLabel);
-            this._controlsBox.add_child(this._minusLabel);
+            this._controlsBox.add_child(this._plusButton);
+            this._controlsBox.add_child(this._minusButton);
 
-            this._plusLabel.connect('button-press-event', () => this._addWorkspace());
-            this._minusLabel.connect('button-press-event', () => this._removeWorkspace());
+            this._plusButton.connect('clicked', () => this._addWorkspace());
+            this._minusButton.connect('clicked', () => this._removeWorkspace());
 
             this._box.add_child(this._controlsBox);
         }
@@ -239,6 +242,8 @@ const WorkspacesBar = GObject.registerClass(
         }
 
         destroy() {
+            this._plusButton?.destroy();
+            this._minusButton?.destroy();
             this._box.destroy_all_children();
 
             super.destroy();
@@ -246,9 +251,9 @@ const WorkspacesBar = GObject.registerClass(
     });
 
 const WorkspaceButton = GObject.registerClass(
-    class WorkspaceButton extends St.Bin {
+    class WorkspaceButton extends St.Button {
         _init(workspace) {
-            super._init({ reactive: true });
+            super._init();
 
             this._workspace = workspace;
 
@@ -274,7 +279,8 @@ const WorkspaceButton = GObject.registerClass(
                 'notify::workspace-index', () => this._updateIndex(),
                 'notify::n-windows', () => this._updateOpacity(),
                 this);
-            this.connect('button-press-event', (widget, event) => this._onClick(event));
+
+            this.connect('clicked', () => this._onClick());
         }
 
         _disconnectSignals() {
@@ -289,7 +295,7 @@ const WorkspaceButton = GObject.registerClass(
             this.add_child(this._workspaceIndex);
         }
 
-        _onClick(event) {
+        _onClick() {
             if (global.workspace_manager.get_active_workspace() === this._workspace)
                 Main.overview.toggle();
             else if (this._workspace && this._isWorkspaceMapped())
@@ -406,7 +412,12 @@ const TaskButton = GObject.registerClass(
                 this);
 
             this.connect('notify::hover', () => this._onHover());
-            this.connect('button-release-event', (actor, event) => this._onClick(event));
+
+            if (this._clickGesture)
+                this.remove_action(this._clickGesture);
+            this._clickGesture = new Clutter.ClickGesture();
+            this._clickGesture.connect('recognize', gesture => this._onClick(gesture));
+            this.add_action(this._clickGesture);
         }
 
         _disconnectSignals() {
@@ -463,8 +474,8 @@ const TaskButton = GObject.registerClass(
             Main.overview.hide();
         }
 
-        _onClick(event) {
-            const button = event?.get_button();
+        _onClick(gesture) {
+            const button = gesture?.get_button();
 
             switch (button) {
                 case Clutter.BUTTON_PRIMARY:
@@ -663,9 +674,6 @@ const TasksInPanel = GObject.registerClass(
             if (this._settings?.get_boolean('show-user-id'))
                 this._userIdButton = new UserIdButton();
 
-            if (this._settings?.get_boolean('show-power-profile'))
-                this._powerProfileIndicator = new PowerProfileIndicator();
-
             this._moveDate(this._settings?.get_boolean('move-date'));
             Main.panel._updatePanel();
 
@@ -759,7 +767,7 @@ const TasksInPanel = GObject.registerClass(
 
             if (this._showRecentAppsMenu) {
                 GLib.idle_add_once(GLib.PRIORITY_DEFAULT, () => {
-                    this._recentAppsMenuButton._updateRecentApps();
+                    this._recentAppsMenuButton?._updateRecentApps();
                 });
             }
         }
@@ -796,9 +804,6 @@ const TasksInPanel = GObject.registerClass(
         _destroyItems() {
             this._userIdButton?.destroy();
             this._userIdButton = null;
-
-            this._powerProfileIndicator?.destroy();
-            this._powerProfileIndicator = null;
 
             this._showDesktopButton?.destroy();
             this._showDesktopButton = null;
