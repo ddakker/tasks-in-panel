@@ -559,24 +559,12 @@ const TaskButton = GObject.registerClass(
                 const monitorWindows = this._window?.get_workspace()?.list_windows().filter(w => w.get_monitor() === monitorIndex);
                 this._windowOnTop = global.display.sort_windows_by_stacking(monitorWindows)?.at(-1);
 
-                if (this._raiseWindowTimeout)
-                    GLib.Source.remove(this._raiseWindowTimeout);
-
-                this._raiseWindowTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._hoverDelay, () => {
+                GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, this._hoverDelay, () => {
                     if (this.hover)
                         this._window?.raise();
-
-                    this._raiseWindowTimeout = null;
-                    return GLib.SOURCE_REMOVE;
                 });
-            } else {
-                if (this._raiseWindowTimeout) {
-                    GLib.Source.remove(this._raiseWindowTimeout);
-                    this._raiseWindowTimeout = null;
-                }
-
+            } else
                 this._windowOnTop?.raise();
-            }
         }
 
         _updateApp() {
@@ -665,11 +653,6 @@ const TaskButton = GObject.registerClass(
         _animatedDestroy() {
             this._disconnectSignals();
 
-            if (this._raiseWindowTimeout) {
-                GLib.Source.remove(this._raiseWindowTimeout);
-                this._raiseWindowTimeout = null;
-            }
-
             if (this._animateOnClose) {
                 this.opacity = 0;
                 this._box.ease({
@@ -688,11 +671,6 @@ const TaskButton = GObject.registerClass(
 
         destroy() {
             this._disconnectSignals();
-
-            if (this._raiseWindowTimeout) {
-                GLib.Source.remove(this._raiseWindowTimeout);
-                this._raiseWindowTimeout = null;
-            }
 
             super.destroy();
         }
@@ -784,16 +762,13 @@ const TasksInPanel = GObject.registerClass(
         }
 
         _initTaskBar() {
-            this._makeTaskBarTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+            GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, 500, () => {
                 this._makeTaskbar();
-
-                this._makeTaskBarTimeout = null;
-                return GLib.SOURCE_REMOVE;
             });
         }
 
         _initWorkspacesBar() {
-            this._makeWorkspacesBarTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+            GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, 500, () => {
                 this._workspacesBar = new WorkspacesBar(this._settings);
 
                 const workspacesNumber = global.workspace_manager.n_workspaces;
@@ -805,9 +780,6 @@ const TasksInPanel = GObject.registerClass(
                 }
 
                 global.workspace_manager.connectObject('workspace-added', (wm, index) => this._makeWorkspaceButton(index), this);
-
-                this._makeWorkspacesBarTimeout = null;
-                return GLib.SOURCE_REMOVE;
             });
         }
 
@@ -846,14 +818,8 @@ const TasksInPanel = GObject.registerClass(
             new TaskButton(this._settings, this._globalRecentApps, window);
 
             if (this._showRecentAppsMenu) {
-                if (this._recentAppsTimeout)
-                    GLib.Source.remove(this._recentAppsTimeout);
-
-                this._recentAppsTimeout = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+                GLib.idle_add_once(GLib.PRIORITY_DEFAULT, () => {
                     this._recentAppsMenuButton._updateRecentApps();
-
-                    this._recentAppsTimeout = null;
-                    return GLib.SOURCE_REMOVE;
                 });
             }
         }
@@ -872,11 +838,6 @@ const TasksInPanel = GObject.registerClass(
         }
 
         _destroyTaskbar() {
-            if (this._makeTaskBarTimeout) {
-                GLib.Source.remove(this._makeTaskBarTimeout);
-                this._makeTaskBarTimeout = null;
-            }
-
             for (const box of [Main.panel._leftBox, Main.panel._centerBox]) {
                 for (const bin of box.get_children()) {
                     const button = bin?.child;
@@ -888,11 +849,6 @@ const TasksInPanel = GObject.registerClass(
         }
 
         _destroyWorkspacesBar() {
-            if (this._makeWorkspacesBarTimeout) {
-                GLib.Source.remove(this._makeWorkspacesBarTimeout);
-                this._makeWorkspacesBarTimeout = null;
-            }
-
             this._workspacesBar?.destroy();
             this._workspacesBar = null;
         }
@@ -934,11 +890,6 @@ const TasksInPanel = GObject.registerClass(
             this._destroyItems();
 
             Main.panel._updatePanel();
-
-            if (this._recentAppsTimeout) {
-                GLib.Source.remove(this._recentAppsTimeout);
-                this._recentAppsTimeout = null;
-            }
 
             if (this._globalRecentApps) {
                 this._globalRecentApps.recentApps = null;
