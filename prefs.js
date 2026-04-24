@@ -89,13 +89,6 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         const groupIndicators = new Adw.PreferencesGroup();
         pageIndicators.add(groupIndicators);
 
-        const showPowerProfile = new Adw.SwitchRow({
-            title: 'Show power profile indicator',
-            subtitle: 'Scroll to change power profile.',
-        });
-        groupIndicators.add(showPowerProfile);
-        window._settings.bind('show-power-profile', showPowerProfile, 'active', Gio.SettingsBindFlags.DEFAULT);
-
         const showUserId = new Adw.SwitchRow({
             title: 'Show user name',
         });
