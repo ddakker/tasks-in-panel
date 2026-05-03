@@ -616,9 +616,9 @@ const TaskButton = GObject.registerClass(
                 super.destroy();
         }
 
-        vfunc_event(event) {
-            return Clutter.EVENT_PROPAGATE;
-        }
+        //vfunc_event(event) {
+        //    return Clutter.EVENT_PROPAGATE;
+        //}
 
         destroy() {
             this._disconnectSignals();
