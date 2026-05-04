@@ -242,10 +242,6 @@ const WorkspacesBar = GObject.registerClass(
         }
 
         destroy() {
-            this._plusButton?.destroy();
-            this._minusButton?.destroy();
-            this._box.destroy_all_children();
-
             super.destroy();
         }
     });
