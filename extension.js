@@ -598,8 +598,6 @@ const TaskButton = GObject.registerClass(
         }
 
         _animatedDestroy() {
-            this._disconnectSignals();
-
             if (this._animateOnClose) {
                 this.opacity = 0;
                 this._box.ease({
