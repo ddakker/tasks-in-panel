@@ -606,10 +606,10 @@ const TaskButton = GObject.registerClass(
                     width: 0,
                     duration: 150,
                     mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-                    onStopped: () => super.destroy(),
+                    onStopped: () => this.destroy(),
                 });
             } else
-                super.destroy();
+                this.destroy();
         }
 
         vfunc_event(event) {
