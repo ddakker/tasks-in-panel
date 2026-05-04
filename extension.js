@@ -515,8 +515,12 @@ const TaskButton = GObject.registerClass(
         }
 
         _updateApp() {
-            if (this._window)
+            if (this._window) {
+                if (this._groupWindows)
+                    this._app?.disconnectObject(this);
                 this._app = Shell.WindowTracker.get_default().get_window_app(this._window);
+            }
+
             if (!this._app)
                 return;
 
