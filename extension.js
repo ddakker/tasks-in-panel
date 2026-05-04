@@ -616,9 +616,9 @@ const TaskButton = GObject.registerClass(
                 super.destroy();
         }
 
-        //vfunc_event(event) {
-        //    return Clutter.EVENT_PROPAGATE;
-        //}
+        vfunc_event(event) {
+            return Clutter.EVENT_PROPAGATE;
+        }
 
         destroy() {
             this._disconnectSignals();
@@ -721,11 +721,8 @@ const TasksInPanel = GObject.registerClass(
 
                 const workspacesNumber = global.workspace_manager.n_workspaces;
 
-                for (let workspaceIndex = 0; workspaceIndex < workspacesNumber; workspaceIndex++) {
-                    const workspace = global.workspace_manager.get_workspace_by_index(workspaceIndex);
-
+                for (let workspaceIndex = 0; workspaceIndex < workspacesNumber; workspaceIndex++)
                     this._makeWorkspaceButton(workspaceIndex);
-                }
 
                 global.workspace_manager.connectObject('workspace-added', (wm, index) => this._makeWorkspaceButton(index), this);
             });
