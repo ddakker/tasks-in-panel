@@ -93,7 +93,7 @@ const ShowDesktopButton = GObject.registerClass(
 const UserIdButton = GObject.registerClass(
     class UserIdButton extends SystemIndicator {
         _init() {
-            super._init()
+            super._init();
 
             this._indicator = this._addIndicator();
 
@@ -239,10 +239,6 @@ const WorkspacesBar = GObject.registerClass(
                 const activeWorkspace = global.workspace_manager.get_active_workspace();
                 global.workspace_manager.remove_workspace(activeWorkspace, global.get_current_time());
             }
-        }
-
-        destroy() {
-            super.destroy();
         }
     });
 
@@ -480,20 +476,16 @@ const TaskButton = GObject.registerClass(
                     else
                         this._toggleWindow();
                     return Clutter.EVENT_STOP;
-                    break;
                 case Clutter.BUTTON_SECONDARY:
                     this.menu?.toggle();
                     return Clutter.EVENT_STOP;
-                    break;
                 case Clutter.BUTTON_MIDDLE:
                     if (this._app?.can_open_new_window())
                         this._app?.open_new_window(-1);
                     Main.overview.hide();
                     return Clutter.EVENT_STOP;
-                    break;
                 default:
                     return Clutter.EVENT_PROPAGATE;
-                    break;
             }
         }
 
