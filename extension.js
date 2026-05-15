@@ -95,19 +95,12 @@ const UserIdButton = GObject.registerClass(
         _init() {
             super._init();
 
-            this._indicator = this._addIndicator();
+            this._addIndicator();
 
             const userId = new St.Label({ text: `${GLib.get_real_name()}  `, y_align: Clutter.ActorAlign.CENTER });
             this.add_child(userId);
 
             Main.panel.statusArea.quickSettings.addExternalIndicator(this);
-        }
-
-        destroy() {
-            this._indicator?.destroy();
-            this._indicator = null;
-
-            super.destroy();
         }
     });
 
@@ -117,6 +110,9 @@ const FavoritesMenuButton = GObject.registerClass(
             super._init(0.5);
 
             this._makeButtonBox();
+
+            if (!Main.panel.statusArea['favoritesMenuButton'])
+                Main.panel.addToStatusArea('favoritesMenuButton', this, 99, 'left');
 
             AppFavorites.getAppFavorites().connectObject('changed', () => this._updateFavorites(), this);
         }
@@ -161,6 +157,9 @@ const RecentAppsMenuButton = GObject.registerClass(
             this._globalRecentApps = globalRecentApps;
 
             this._makeButtonBox();
+
+            if (!Main.panel.statusArea['recentAppsMenuButton'])
+                Main.panel.addToStatusArea('recentAppsMenuButton', this, 99, 'left');
         }
 
         _makeButtonBox() {
@@ -264,7 +263,6 @@ const WorkspaceButton = GObject.registerClass(
         _connectSignals() {
             global.workspace_manager.connectObject(
                 'active-workspace-changed', () => this._updateFocus(),
-                'workspace-removed', () => this._onWorkspaceRemoved(),
                 'notify::n-workspaces', () => this._onWorkspaceRemoved(),
                 this);
             this._workspace?.connectObject(
@@ -346,18 +344,16 @@ const WorkspaceButton = GObject.registerClass(
 
 const TaskButton = GObject.registerClass(
     class TaskButton extends PanelMenu.Button {
-        _init(settings, globalRecentApps, window) {
+        _init(taskSettings, globalRecentApps, window) {
             super._init();
 
-            this._settings = settings;
+            this._taskSettings = taskSettings;
             this._globalRecentApps = globalRecentApps;
             this._window = window;
 
-            this._importSettings();
-
             this._makeButtonBox();
 
-            const side = this._centerTasks ? 'center' : 'left';
+            const side = this._taskSettings.centerTasks ? 'center' : 'left';
             const windowId = this._window?.get_id();
             const buttonId = `taskButton${windowId}`;
             if (windowId && !Main.panel.statusArea[buttonId])
@@ -368,24 +364,6 @@ const TaskButton = GObject.registerClass(
             this._updateVisibility();
 
             this._connectSignals();
-        }
-
-        _importSettings() {
-            this._centerTasks = this._settings?.get_boolean('center-tasks');
-            this._showFocusedWindow = this._settings?.get_boolean('show-focused-window');
-            this._hoverRaiseWindow = this._settings?.get_boolean('hover-raise-window');
-            this._hoverDelay = this._settings?.get_int('hover-delay');
-            this._undecoratedTaskButtons = this._settings?.get_boolean('undecorated-task-buttons');
-            this._showActiveWorkspace = this._settings?.get_boolean('show-active-workspace');
-            this._showWindowTitle = this._settings?.get_boolean('show-window-title');
-            this._showWindowApp = this._settings?.get_boolean('show-window-app');
-            this._showWindowIcon = this._settings?.get_boolean('show-window-icon');
-            this._desaturateIcon = this._settings?.get_boolean('desaturate-icon');
-            this._buttonWidth = this._settings?.get_int('button-width');
-            this._groupWindows = this._settings?.get_boolean('group-windows');
-            this._showRecentAppsMenu = this._settings?.get_boolean('show-recent-apps-menu');
-            this._recentAppsListLength = this._settings?.get_int('recent-apps-list-length');
-            this._animateOnClose = this._settings?.get_boolean('animate-on-close');
         }
 
         _connectSignals() {
@@ -422,31 +400,31 @@ const TaskButton = GObject.registerClass(
 
         _makeButtonBox() {
             this._box = new St.BoxLayout({ reactive: true, track_hover: true });
-            if (!this._showFocusedWindow && !this._undecoratedTaskButtons)
+            if (!this._taskSettings.showFocusedWindow && !this._taskSettings.undecoratedTaskButtons)
                 this._box.add_style_class_name('task-box');
 
-            if (this._showWindowTitle && this._buttonWidth > -1)
-                this._box.set_style(`-st-natural-width: 9999px; max-width: ${this._buttonWidth}px;`);
+            if (this._taskSettings.showWindowTitle && this._taskSettings.buttonWidth > -1)
+                this._box.set_style(`-st-natural-width: 9999px; max-width: ${this._taskSettings.buttonWidth}px;`);
 
             this._icon = new St.Icon({ fallback_gicon: null });
             this._box.add_child(this._icon);
-            this._icon.visible = this._showWindowIcon;
-            if (this._desaturateIcon) {
+            this._icon.visible = this._taskSettings.showWindowIcon;
+            if (this._taskSettings.desaturateIcon) {
                 const desaturate = new Clutter.DesaturateEffect();
                 this._icon.add_effect(desaturate);
             }
 
             this._title = new St.Label({ style_class: 'task-label', y_align: Clutter.ActorAlign.CENTER });
             this._box.add_child(this._title);
-            this._title.visible = this._showWindowTitle;
+            this._title.visible = this._taskSettings.showWindowTitle;
 
             this._separator = new St.Label({ text: '—', style_class: 'task-label', y_align: Clutter.ActorAlign.CENTER });
             this._box.add_child(this._separator);
-            this._separator.visible = this._showWindowApp && this._showWindowTitle;
+            this._separator.visible = this._taskSettings.showWindowApp && this._taskSettings.showWindowTitle;
 
             this._appName = new St.Label({ style_class: 'task-label', y_align: Clutter.ActorAlign.CENTER });
             this._box.add_child(this._appName);
-            this._appName.visible = this._showWindowApp;
+            this._appName.visible = this._taskSettings.showWindowApp;
 
             this.add_child(this._box);
 
@@ -471,7 +449,7 @@ const TaskButton = GObject.registerClass(
 
             switch (button) {
                 case Clutter.BUTTON_PRIMARY:
-                    if (this._showFocusedWindow)
+                    if (this._taskSettings.showFocusedWindow)
                         this.menu?.toggle();
                     else
                         this._toggleWindow();
@@ -490,7 +468,7 @@ const TaskButton = GObject.registerClass(
         }
 
         _onHover() {
-            if (!this._hoverRaiseWindow || Main.overview.visible || !Main.wm._canScroll)
+            if (!this._taskSettings.hoverRaiseWindow || Main.overview.visible || !Main.wm._canScroll)
                 return;
 
             if (this.hover) {
@@ -498,7 +476,7 @@ const TaskButton = GObject.registerClass(
                 const monitorWindows = this._window?.get_workspace()?.list_windows().filter(w => w.get_monitor() === monitorIndex);
                 this._windowOnTop = global.display.sort_windows_by_stacking(monitorWindows)?.at(-1);
 
-                GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, this._hoverDelay, () => {
+                GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, this._taskSettings.hoverDelay, () => {
                     if (this.hover)
                         this._window?.raise();
                 });
@@ -508,7 +486,7 @@ const TaskButton = GObject.registerClass(
 
         _updateApp() {
             if (this._window) {
-                if (this._groupWindows)
+                if (this._taskSettings.groupWindows)
                     this._app?.disconnectObject(this);
                 this._app = Shell.WindowTracker.get_default().get_window_app(this._window);
             }
@@ -525,20 +503,20 @@ const TaskButton = GObject.registerClass(
 
             this.menu.setApp(this._app);
 
-            if (this._showRecentAppsMenu && this._app.app_info) {
+            if (this._taskSettings.showRecentAppsMenu && this._app.app_info) {
                 let recentApps = this._globalRecentApps.recentApps;
                 recentApps = recentApps.filter(a => a !== this._app);
                 recentApps.unshift(this._app);
-                recentApps.length = Math.min(recentApps.length, this._recentAppsListLength ?? 8);
+                recentApps.length = Math.min(recentApps.length, this._taskSettings.recentAppsListLength ?? 8);
                 this._globalRecentApps.recentApps = recentApps;
             }
 
-            if (this._groupWindows)
+            if (this._taskSettings.groupWindows)
                 this._app.connectObject('windows-changed', () => this._updateVisibility(), this);
         }
 
         _updateDemandsAttention() {
-            if (this._showFocusedWindow || this._undecoratedTaskButtons)
+            if (this._taskSettings.showFocusedWindow || this._taskSettings.undecoratedTaskButtons)
                 return;
 
             if (this._window?.demands_attention) {
@@ -554,11 +532,11 @@ const TaskButton = GObject.registerClass(
             const focusWindow = global.display.focus_window;
             this._windowHasFocus = this._window?.appears_focused || focusWindow?.get_transient_for() === this._window;
 
-            if (this._showFocusedWindow)
+            if (this._taskSettings.showFocusedWindow)
                 return;
 
             const isFocused = this._windowIsOnActiveWorkspace && this._windowHasFocus;
-            if (this._undecoratedTaskButtons)
+            if (this._taskSettings.undecoratedTaskButtons)
                 this._box.opacity = isFocused ? 255 : UNFOCUSED_TASK_BUTTON_OPACITY;
             else
                 isFocused
@@ -574,7 +552,7 @@ const TaskButton = GObject.registerClass(
             const activeWorkspace = global.workspace_manager.get_active_workspace();
             this._windowIsOnActiveWorkspace = this._window?.located_on_workspace(activeWorkspace);
 
-            if (this._groupWindows) {
+            if (this._taskSettings.groupWindows) {
                 const appWindows = (this._app?.get_windows() ?? []).filter(w => w.window_type !== Meta.WindowType.MODAL_DIALOG);
                 const appWindowsOnActiveWorkspace = appWindows?.filter(w => w.located_on_workspace(activeWorkspace));
                 const candidateWindows = appWindowsOnActiveWorkspace?.length > 0 ? appWindowsOnActiveWorkspace : appWindows;
@@ -588,13 +566,13 @@ const TaskButton = GObject.registerClass(
             this._updateFocus();
 
             this.visible = !this._window?.skip_taskbar
-                && (!this._showActiveWorkspace || this._windowIsOnActiveWorkspace)
-                && (!this._showFocusedWindow || this._windowHasFocus)
-                && (!this._groupWindows || this._isAppWindowOnTop);
+                && (!this._taskSettings.showActiveWorkspace || this._windowIsOnActiveWorkspace)
+                && (!this._taskSettings.showFocusedWindow || this._windowHasFocus)
+                && (!this._taskSettings.groupWindows || this._isAppWindowOnTop);
         }
 
         _animatedDestroy() {
-            if (this._animateOnClose) {
+            if (this._taskSettings.animateOnClose) {
                 this.opacity = 0;
                 this._box.ease({
                     width: 0,
@@ -681,22 +659,34 @@ const TasksInPanel = GObject.registerClass(
 
             if (this._settings?.get_boolean('show-show-desktop'))
                 this._showDesktopButton = new ShowDesktopButton();
+
+            this._taskSettings = {
+                centerTasks: this._settings.get_boolean('center-tasks'),
+                showFocusedWindow: this._settings.get_boolean('show-focused-window'),
+                hoverRaiseWindow: this._settings.get_boolean('hover-raise-window'),
+                hoverDelay: this._settings.get_int('hover-delay'),
+                undecoratedTaskButtons: this._settings.get_boolean('undecorated-task-buttons'),
+                showActiveWorkspace: this._settings.get_boolean('show-active-workspace'),
+                showWindowTitle: this._settings.get_boolean('show-window-title'),
+                showWindowApp: this._settings.get_boolean('show-window-app'),
+                showWindowIcon: this._settings.get_boolean('show-window-icon'),
+                desaturateIcon: this._settings.get_boolean('desaturate-icon'),
+                buttonWidth: this._settings.get_int('button-width'),
+                groupWindows: this._settings.get_boolean('group-windows'),
+                showRecentAppsMenu: this._settings.get_boolean('show-recent-apps-menu'),
+                recentAppsListLength: this._settings.get_int('recent-apps-list-length'),
+                animateOnClose: this._settings.get_boolean('animate-on-close'),
+            };
         }
 
         _initFavoritesMenu() {
             this._favoritesMenuButton = new FavoritesMenuButton();
-
-            if (!Main.panel.statusArea['favoritesMenuButton'])
-                Main.panel.addToStatusArea('favoritesMenuButton', this._favoritesMenuButton, 99, 'left');
         }
 
         _initRecentAppsMenu() {
             this._globalRecentApps = { recentApps: [] };
 
             this._recentAppsMenuButton = new RecentAppsMenuButton(this._globalRecentApps);
-
-            if (!Main.panel.statusArea['recentAppsMenuButton'])
-                Main.panel.addToStatusArea('recentAppsMenuButton', this._recentAppsMenuButton, 99, 'left');
         }
 
         _initTaskBar() {
@@ -750,12 +740,11 @@ const TasksInPanel = GObject.registerClass(
             if (!window || window.skip_taskbar || window.window_type === Meta.WindowType.MODAL_DIALOG)
                 return;
 
-            new TaskButton(this._settings, this._globalRecentApps, window);
+            new TaskButton(this._taskSettings, this._globalRecentApps, window);
 
             if (this._showRecentAppsMenu) {
-                GLib.idle_add_once(GLib.PRIORITY_DEFAULT, () => {
-                    this._recentAppsMenuButton?._updateRecentApps();
-                });
+                GLib.idle_add_once(GLib.PRIORITY_DEFAULT_IDLE, () =>
+                    this._recentAppsMenuButton?._updateRecentApps());
             }
         }
 
@@ -831,10 +820,6 @@ const TasksInPanel = GObject.registerClass(
     });
 
 export default class TasksInPanelExtension extends Extension {
-    constructor(metadata) {
-        super(metadata);
-    }
-
     _restart() {
         this.disable();
         this.enable();
