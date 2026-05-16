@@ -1,5 +1,5 @@
 .plus-minus {
-  padding-left: 0px;
+  padding-left: 0;
   padding-right: 8px;
 
   spacing: 4px;
@@ -13,7 +13,7 @@
   padding-left: 8px;
   padding-right: 8px;
 
-  margin-left: 0px;
+  margin-left: 0;
   margin-right: 8px;
 
   font-size: 90%;
