@@ -829,8 +829,7 @@ class TasksInPanel extends GObject.Object {
 
         Main.panel._updatePanel();
 
-        if (this._globalRecentApps)
-            this._globalRecentApps = null;
+        this._globalRecentApps = null;
     }
 }
 
