@@ -89,9 +89,8 @@ class ShowDesktopButton extends PanelMenu.Button {
                     window?.minimize();
             }
         } else {
-            for (const window of allWindows) {
+            for (const window of allWindows)
                 window?.unminimize();
-            }
         }
     }
 }
@@ -375,8 +374,10 @@ class TaskButton extends PanelMenu.Button {
         const buttonId = `taskButton${windowId}`;
         if (windowId && !Main.panel.statusArea[buttonId])
             Main.panel.addToStatusArea(buttonId, this, 99, side);
-        else
+        else {
             this.destroy();
+            return;
+        }
 
         this._updateApp();
         this._updateTitle();
@@ -745,8 +746,10 @@ class TasksInPanel extends GObject.Object {
             const windowsList = workspace?.list_windows() ?? [];
             const windowsListSorted = global.display.sort_windows_by_stacking(windowsList);
 
-            for (const window of windowsListSorted)
-                this._makeTaskButton(window);
+            for (const window of windowsListSorted) {
+                if (!window.is_on_all_workspaces() || workspaceIndex === 0)
+                    this._makeTaskButton(window);
+            }
         }
 
         this._connectSignals();
