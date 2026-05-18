@@ -211,18 +211,16 @@ class WorkspacesBar extends PanelMenu.Button {
         GObject.registerClass(this);
     }
 
-    constructor(settings) {
+    constructor(settings, isDynamicWorkspaces) {
         super();
         this.reactive = false;
 
         this._settings = settings;
-
-        const mutterSettings = new Gio.Settings({ schema_id: 'org.gnome.mutter' });
-        const isDynamicWorkspaces = mutterSettings?.get_boolean('dynamic-workspaces');
+        this._isDynamicWorkspaces = isDynamicWorkspaces;
 
         this._box = new St.BoxLayout();
 
-        if (!isDynamicWorkspaces && this._settings?.get_boolean('show-plus-minus'))
+        if (!this._isDynamicWorkspaces && this._settings?.get_boolean('show-plus-minus'))
             this._makeControlsBox();
 
         this.add_child(this._box);
@@ -264,19 +262,16 @@ class WorkspaceButton extends St.Button {
         GObject.registerClass(this);
     }
 
-    constructor(workspace) {
+    constructor(workspace, isDynamicWorkspaces) {
         super();
 
         this._workspace = workspace;
-
-        const mutterSettings = new Gio.Settings({ schema_id: 'org.gnome.mutter' });
-        this._isDynamicWorkspaces = mutterSettings?.get_boolean('dynamic-workspaces');
+        this._isDynamicWorkspaces = isDynamicWorkspaces;
 
         this._makeButtonBox();
 
         this._updateIndex();
         this._updateFocus();
-        this._updateOpacity();
 
         this._connectSignals();
     }
@@ -311,8 +306,6 @@ class WorkspaceButton extends St.Button {
             Main.overview.toggle();
         else if (this._workspace && this._isWorkspaceMapped())
             this._workspace.activate(global.get_current_time());
-
-        return Clutter.EVENT_STOP;
     }
 
     _updateFocus() {
@@ -391,7 +384,7 @@ class TaskButton extends PanelMenu.Button {
     }
 
     _connectSignals() {
-        global.workspace_manager.connectObject('active-workspace-changed', () => this._updateVisibility(), this);
+        global.workspace_manager.connectObject('active-workspace-changed', () => this._updateVisibility(), GObject.ConnectFlags.AFTER, this);
         global.display.connectObject('notify::focus-window', () => this._updateVisibility(), GObject.ConnectFlags.AFTER, this);
 
         this._window?.connectObject(
@@ -477,17 +470,15 @@ class TaskButton extends PanelMenu.Button {
                     this.menu?.toggle();
                 else
                     this._toggleWindow();
-                return Clutter.EVENT_STOP;
+                break;
             case Clutter.BUTTON_SECONDARY:
                 this.menu?.toggle();
-                return Clutter.EVENT_STOP;
+                break;
             case Clutter.BUTTON_MIDDLE:
                 if (this._app?.can_open_new_window())
                     this._app?.open_new_window(-1);
                 Main.overview.hide();
-                return Clutter.EVENT_STOP;
-            default:
-                return Clutter.EVENT_PROPAGATE;
+                break;
         }
     }
 
@@ -525,7 +516,7 @@ class TaskButton extends PanelMenu.Button {
 
         this._appName.text = this._app.get_name() ?? '';
 
-        this.menu.setApp(this._app);
+        this.menu?.setApp(this._app);
 
         if (this._taskSettings.showRecentAppsMenu && this._app.app_info) {
             const maxLength = this._taskSettings.recentAppsListLength ?? 8;
@@ -562,10 +553,10 @@ class TaskButton extends PanelMenu.Button {
         const isFocused = this._windowIsOnActiveWorkspace && this._windowHasFocus;
         if (this._taskSettings.undecoratedTaskButtons)
             this._box.opacity = isFocused ? 255 : UNFOCUSED_TASK_BUTTON_OPACITY;
+        else if (isFocused)
+            this._box.add_style_class_name('task-box-focus');
         else
-            isFocused
-                ? this._box.add_style_class_name('task-box-focus')
-                : this._box.remove_style_class_name('task-box-focus');
+            this._box.remove_style_class_name('task-box-focus');
     }
 
     _updateTitle() {
@@ -608,6 +599,7 @@ class TaskButton extends PanelMenu.Button {
             this.destroy();
     }
 
+    // should be removed in a pure GNOME 50 version => has to be tested
     vfunc_event(event) {
         return Clutter.EVENT_PROPAGATE;
     }
@@ -650,6 +642,9 @@ class TasksInPanel extends GObject.Object {
     }
 
     _initSettings() {
+        const mutterSettings = new Gio.Settings({ schema_id: 'org.gnome.mutter' });
+        this._isDynamicWorkspaces = mutterSettings?.get_boolean('dynamic-workspaces');
+
         if (this._settings?.get_boolean('light-style'))
             this._lightStyleMode = new LightStyleMode();
 
@@ -676,10 +671,12 @@ class TasksInPanel extends GObject.Object {
             Main.panel.statusArea.activities?.hide();
 
         if (this._settings?.get_boolean('show-favorites-menu'))
-            this._initFavoritesMenu();
+            this._favoritesMenuButton = new FavoritesMenuButton();
 
-        if (this._settings?.get_boolean('show-recent-apps-menu'))
-            this._initRecentAppsMenu();
+        if (this._settings?.get_boolean('show-recent-apps-menu')) {
+            this._globalRecentApps = { recentApps: [] };
+            this._recentAppsMenuButton = new RecentAppsMenuButton(this._globalRecentApps);
+        }
 
         if (this._settings?.get_boolean('show-workspaces-bar'))
             this._initWorkspacesBar();
@@ -706,16 +703,6 @@ class TasksInPanel extends GObject.Object {
         };
     }
 
-    _initFavoritesMenu() {
-        this._favoritesMenuButton = new FavoritesMenuButton();
-    }
-
-    _initRecentAppsMenu() {
-        this._globalRecentApps = { recentApps: [] };
-
-        this._recentAppsMenuButton = new RecentAppsMenuButton(this._globalRecentApps);
-    }
-
     _initTaskBar() {
         GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, 500, () => {
             this._makeTaskbar();
@@ -724,7 +711,7 @@ class TasksInPanel extends GObject.Object {
 
     _initWorkspacesBar() {
         GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, 500, () => {
-            this._workspacesBar = new WorkspacesBar(this._settings);
+            this._workspacesBar = new WorkspacesBar(this._settings, this._isDynamicWorkspaces);
 
             const workspacesNumber = global.workspace_manager.n_workspaces;
 
@@ -733,6 +720,19 @@ class TasksInPanel extends GObject.Object {
 
             global.workspace_manager.connectObject('workspace-added', (_wm, index) => this._makeWorkspaceButton(index), this);
         });
+    }
+
+    _makeWorkspaceButton(index) {
+        const workspace = global.workspace_manager.get_workspace_by_index(index);
+        if (!workspace || !this._workspacesBar || !this._workspacesBar._box)
+            return;
+
+        for (const bin of this._workspacesBar._box.get_children()) {
+            if (workspace === bin?._workspace)
+                return;
+        }
+
+        this._workspacesBar._box.add_child(new WorkspaceButton(workspace, this._isDynamicWorkspaces));
     }
 
     _makeTaskbar() {
@@ -748,19 +748,6 @@ class TasksInPanel extends GObject.Object {
         }
 
         this._connectSignals();
-    }
-
-    _makeWorkspaceButton(index) {
-        const workspace = global.workspace_manager.get_workspace_by_index(index);
-        if (!workspace || !this._workspacesBar || !this._workspacesBar._box)
-            return;
-
-        for (const bin of this._workspacesBar._box.get_children()) {
-            if (workspace === bin?._workspace)
-                return;
-        }
-
-        this._workspacesBar._box.add_child(new WorkspaceButton(workspace));
     }
 
     _makeTaskButton(window) {
