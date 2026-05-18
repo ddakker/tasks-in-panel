@@ -449,16 +449,16 @@ class TaskButton extends PanelMenu.Button {
     }
 
     _toggleWindow() {
+        if (!this._window)
+            return;
+
         this._windowOnTop = null;
 
-        if (this._windowIsOnActiveWorkspace && this._windowHasFocus) {
-            if (this._window?.can_minimize() && !Main.overview.visible)
-                this._window?.minimize();
-        } else {
-            this._window?.activate(global.get_current_time());
-            this._window?.focus(global.get_current_time());
-        }
-        Main.overview.hide();
+        if (!Main.overview.visible && this._windowIsOnActiveWorkspace && this._windowHasFocus) {
+            if (this._window.can_minimize())
+                this._window.minimize();
+        } else
+            Main.activateWindow(this._window);
     }
 
     _onClick(gesture) {
@@ -771,7 +771,8 @@ class TasksInPanel extends GObject.Object {
                 panel.right.unshift('dateMenu');
         } else {
             panel.right = panel.right.filter(item => item !== 'dateMenu');
-            panel.center.unshift('dateMenu');
+            if (!panel.center.includes('dateMenu'))
+                panel.center.unshift('dateMenu');
         }
     }
 
