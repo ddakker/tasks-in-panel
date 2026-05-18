@@ -375,6 +375,8 @@ class TaskButton extends PanelMenu.Button {
         const buttonId = `taskButton${windowId}`;
         if (windowId && !Main.panel.statusArea[buttonId])
             Main.panel.addToStatusArea(buttonId, this, 99, side);
+        else
+            this.destroy();
 
         this._updateApp();
         this._updateTitle();
