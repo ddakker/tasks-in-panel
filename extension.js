@@ -825,7 +825,7 @@ class TasksInPanel extends GObject.Object {
         Main.panel.remove_style_class_name('panel-yaru-like');
         Main.panel.remove_style_class_name('panel-accent');
         if (this._settings?.get_boolean('use-background-color'))
-            Main.panel.set_style('background-color: black;');
+            Main.panel.set_style(null);
 
         Main.panel.statusArea.activities?.show();
         this._moveDate(false);
