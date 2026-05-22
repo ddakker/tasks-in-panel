@@ -431,6 +431,7 @@ class TaskButton extends PanelMenu.Button {
         this._box.add_child(this._icon);
         this._icon.visible = this._taskSettings.showWindowIcon;
         if (this._taskSettings.desaturateIcon) {
+            this._icon.add_style_class_name('task-symbolic-icon');
             const desaturate = new Clutter.DesaturateEffect();
             this._icon.add_effect(desaturate);
         }

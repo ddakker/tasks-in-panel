@@ -129,7 +129,7 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         this._addSwitchRow(group, settings, 'undecorated-task-buttons', 'Undecorated buttons',
             'Unfocused buttons are dimmed.');
         this._addSwitchRow(group, settings, 'desaturate-icon', 'Monochrome icon',
-            'Some apps do not have a symbolic icon, so simply monochrome here.');
+            'Some apps do have a symbolic icon.');
 
         this._addSpinRow(group, settings, 'button-width',
             'Task button natural width (px)',
