@@ -424,7 +424,8 @@ class TaskButton extends PanelMenu.Button {
         if (!this._taskSettings.showFocusedWindow && !this._taskSettings.undecoratedTaskButtons)
             this._box.add_style_class_name('task-box');
 
-        if (this._taskSettings.buttonWidth > -1)
+        if ((this._taskSettings.showWindowTitle || this._taskSettings.showWindowApp)
+            && this._taskSettings.buttonWidth > -1)
             this._box.set_style(`-st-natural-width: 9999px; max-width: ${this._taskSettings.buttonWidth}px;`);
 
         this._icon = new St.Icon({ fallback_gicon: null });
