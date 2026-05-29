@@ -550,7 +550,8 @@ class TaskButton extends PanelMenu.Button {
 
     _updateFocus() {
         const focusWindow = global.display.focus_window;
-        this._windowHasFocus = this._window?.appears_focused || focusWindow?.get_transient_for() === this._window;
+        this._windowHasFocus = this._window?.appears_focused
+            || (this._window && focusWindow?.get_transient_for() === this._window);
 
         if (this._taskSettings.showFocusedWindow)
             return;
