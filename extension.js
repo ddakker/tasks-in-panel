@@ -494,12 +494,14 @@ class TaskButton extends PanelMenu.Button {
 
         if (this.hover) {
             const monitorIndex = this._window?.get_monitor();
-            const monitorWindows = this._window?.get_workspace()?.list_windows().filter(w => w.get_monitor() === monitorIndex);
+            const windows = this._window?.get_workspace()?.list_windows() ?? [];
+            const monitorWindows = windows.filter(w => w.get_monitor() === monitorIndex);
             this._windowOnTop = global.display.sort_windows_by_stacking(monitorWindows)?.at(-1);
 
-            GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, this._taskSettings.hoverDelay, () => {
+            this._hoverTimeout = GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, this._taskSettings.hoverDelay, () => {
                 if (this.hover)
                     this._window?.raise();
+                this._hoverTimeout = null;
             });
         } else
             this._windowOnTop?.raise();
@@ -612,6 +614,10 @@ class TaskButton extends PanelMenu.Button {
     }
 
     destroy() {
+        if (this._hoverTimeout)
+            GLib.source_remove(this._hoverTimeout);
+        this._hoverTimeout = null;
+
         this._disconnectSignals();
 
         super.destroy();
@@ -711,13 +717,14 @@ class TasksInPanel extends GObject.Object {
     }
 
     _initTaskBar() {
-        GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, 500, () => {
+        this._initTaskBarTimeout = GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, 500, () => {
             this._makeTaskbar();
+            this._initTaskBarTimeout = null;
         });
     }
 
     _initWorkspacesBar() {
-        GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, 500, () => {
+        this._initWorkspacesBarTimeout = GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, 500, () => {
             this._workspacesBar = new WorkspacesBar(this._settings, this._isDynamicWorkspaces);
 
             const workspacesNumber = global.workspace_manager.n_workspaces;
@@ -725,7 +732,10 @@ class TasksInPanel extends GObject.Object {
             for (let workspaceIndex = 0; workspaceIndex < workspacesNumber; workspaceIndex++)
                 this._makeWorkspaceButton(workspaceIndex);
 
-            global.workspace_manager.connectObject('workspace-added', (_wm, index) => this._makeWorkspaceButton(index), this);
+            global.workspace_manager.connectObject('workspace-added', (_wm, index) =>
+                this._makeWorkspaceButton(index), this);
+
+            this._initWorkspacesBarTimeout = null;
         });
     }
 
@@ -765,9 +775,11 @@ class TasksInPanel extends GObject.Object {
 
         new TaskButton(this._taskSettings, this._globalRecentApps, window);
 
-        if (this._showRecentAppsMenu) {
-            GLib.idle_add_once(GLib.PRIORITY_DEFAULT_IDLE, () =>
-                this._recentAppsMenuButton?._updateRecentApps());
+        if (this._showRecentAppsMenu && !this._recentAppsMenuTimeout) {
+            this._recentAppsMenuTimeout = GLib.idle_add_once(GLib.PRIORITY_DEFAULT_IDLE, () => {
+                this._recentAppsMenuButton?._updateRecentApps();
+                this._recentAppsMenuTimeout = null;
+            });
         }
     }
 
@@ -786,6 +798,14 @@ class TasksInPanel extends GObject.Object {
     }
 
     _destroyTaskbar() {
+        if (this._initTaskBarTimeout)
+            GLib.source_remove(this._initTaskBarTimeout);
+        this._initTaskBarTimeout = null;
+
+        if (this._recentAppsMenuTimeout)
+            GLib.source_remove(this._recentAppsMenuTimeout);
+        this._recentAppsMenuTimeout = null;
+
         for (const box of [Main.panel._leftBox, Main.panel._centerBox]) {
             for (const bin of box.get_children()) {
                 const button = bin?.child;
@@ -797,6 +817,10 @@ class TasksInPanel extends GObject.Object {
     }
 
     _destroyWorkspacesBar() {
+        if (this._initWorkspacesBarTimeout)
+            GLib.source_remove(this._initWorkspacesBarTimeout);
+        this._initWorkspacesBarTimeout = null;
+
         this._workspacesBar?.destroy();
         this._workspacesBar = null;
     }
