@@ -69,6 +69,8 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         group.add(this._buildColorRow(settings));
 
         this._addSwitchRow(group, settings, 'scroll-panel', 'Scroll on the panel to switch workspace');
+        this._addSwitchRow(group, settings, 'multi-monitor', 'Multi-monitor support',
+            'A task panel on each secondary monitor.\nTasks follow their window\'s monitor.');
 
         return page;
     }

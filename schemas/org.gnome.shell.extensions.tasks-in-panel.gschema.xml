@@ -144,6 +144,11 @@
             <summary>Animate on close</summary>
         </key>
 
+        <key type="b" name="multi-monitor">
+            <default>true</default>
+            <summary>Show a task panel on each monitor</summary>
+        </key>
+
     </schema>
 
 </schemalist>

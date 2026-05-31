@@ -16,6 +16,7 @@ import * as AppFavorites from 'resource:///org/gnome/shell/ui/appFavorites.js';
 import { AppMenu } from 'resource:///org/gnome/shell/ui/appMenu.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import { Panel } from 'resource:///org/gnome/shell/ui/panel.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import { SystemIndicator } from 'resource:///org/gnome/shell/ui/quickSettings.js';
@@ -26,6 +27,95 @@ const UNFOCUSED_TASK_BUTTON_OPACITY = 128; // 0...255
 const SHOW_DESKTOP_ICON_NAME = 'focus-windows-symbolic';
 const FAVORITES_ICON_NAME = 'starred-symbolic';
 const RECENT_APPS_ICON_NAME = 'document-open-recent-symbolic';
+
+class MonitorPanels {
+    constructor() {
+        this._panels = new Map();
+
+        this._queueBuildPanels();
+    }
+
+    _queueBuildPanels() {
+        if (this._buildPanelsTimeout)
+            return;
+
+        this._buildPanelsTimeout = GLib.idle_add_once(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this._buildPanels();
+
+            this._buildPanelsTimeout = null;
+        });
+    }
+
+    _buildPanels() {
+        this._destroyPanels();
+
+        for (const monitor of Main.layoutManager.monitors) {
+            if (monitor === Main.layoutManager.primaryMonitor)
+                continue;
+
+            this._panels.set(monitor, new MonitorPanel(monitor));
+        }
+    }
+
+    _destroyPanels() {
+        for (const panel of this._panels.values())
+            panel.destroy();
+
+        this._panels.clear();
+    }
+
+    destroy() {
+        if (this._buildPanelsTimeout)
+            GLib.source_remove(this._buildPanelsTimeout);
+        this._buildPanelsTimeout = null;
+
+        this._destroyPanels();
+    }
+}
+
+class MonitorPanel extends Panel {
+    static {
+        GObject.registerClass(this);
+    }
+
+    constructor(monitor) {
+        super();
+
+        this._monitor = monitor;
+
+        Main.layoutManager.panelBox.remove_child(this);
+
+        Main.layoutManager.addChrome(this, {
+            affectsStruts: true,
+            trackFullscreen: true,
+        });
+
+        this._reposition();
+    }
+
+    vfunc_get_preferred_width(_forHeight) {
+        return this._monitor ? [0, this._monitor.width] : [0, 0];
+    }
+
+    _updatePanel() {
+        // no duplicated system indicators
+    }
+
+    _reposition() {
+        if (!this._monitor)
+            return;
+
+        this.set_position(this._monitor.x, this._monitor.y);
+        this.set_width(this._monitor.width);
+    }
+
+    destroy() {
+        Main.layoutManager.removeChrome(this);
+
+        super.destroy();
+    }
+}
+
 
 class LightStyleMode extends GObject.Object {
     static {
@@ -360,21 +450,17 @@ class TaskButton extends PanelMenu.Button {
         GObject.registerClass(this);
     }
 
-    constructor(taskSettings, globalRecentApps, window) {
+    constructor(taskSettings, globalRecentApps, panels, window) {
         super();
 
         this._taskSettings = taskSettings;
         this._globalRecentApps = globalRecentApps;
+        this._panels = panels;
         this._window = window;
 
         this._makeButtonBox();
-
-        const side = this._taskSettings.centerTasks ? 'center' : 'left';
-        const windowId = this._window?.get_id();
-        const buttonId = `taskButton${windowId}`;
-        if (windowId && !Main.panel.statusArea[buttonId])
-            Main.panel.addToStatusArea(buttonId, this, 99, side);
-        else {
+        this._insertButton();
+        if (this._abort) {
             this.destroy();
             return;
         }
@@ -387,8 +473,15 @@ class TaskButton extends PanelMenu.Button {
     }
 
     _connectSignals() {
-        global.workspace_manager.connectObject('active-workspace-changed', () => this._updateVisibility(), GObject.ConnectFlags.AFTER, this);
-        global.display.connectObject('notify::focus-window', () => this._updateVisibility(), GObject.ConnectFlags.AFTER, this);
+        global.workspace_manager.connectObject('active-workspace-changed',
+            () => this._updateVisibility(), GObject.ConnectFlags.AFTER, this);
+        global.display.connectObject(
+            'notify::focus-window', () => this._updateVisibility(), GObject.ConnectFlags.AFTER,
+            'window-entered-monitor', (_display, _monitorIndex, window) => {
+                if (window && window === this._window)
+                    this._rehomeButton();
+            }, GObject.ConnectFlags.AFTER,
+            this);
 
         this._window?.connectObject(
             'notify::demands-attention', () => this._updateDemandsAttention(), GObject.ConnectFlags.AFTER,
@@ -417,6 +510,38 @@ class TaskButton extends PanelMenu.Button {
 
         this._window?.disconnectObject(this);
         this._app?.disconnectObject(this);
+    }
+
+    _insertButton() {
+        this._abort = true;
+
+        this._side = this._taskSettings.centerTasks ? 'center' : 'left';
+        this._windowId = this._window?.get_id();
+        this._buttonId = `taskButton${this._windowId}`;
+        const monitor = Main.layoutManager.monitors[this._window?.get_monitor()];
+
+        if (this._windowId) {
+            this._panel = this._panels.get(monitor) ?? Main.panel;
+
+            if (!this._panel.statusArea[this._buttonId]) {
+                this._panel.addToStatusArea(this._buttonId, this, 99, this._side);
+                this._abort = false;
+            }
+        }
+    }
+
+    _rehomeButton() {
+        const monitor = Main.layoutManager.monitors[this._window?.get_monitor()];
+        const panel = this._panels.get(monitor) ?? Main.panel;
+        if (panel === this._panel)
+            return;
+
+        delete this._panel.statusArea[this._buttonId];
+        if (this.menu)
+            this._panel.menuManager.removeMenu(this.menu);
+
+        this._panel = panel;
+        this._panel.addToStatusArea(this._buttonId, this, 99, this._side);
     }
 
     _makeButtonBox() {
@@ -634,29 +759,36 @@ class TasksInPanel extends GObject.Object {
 
         this._settings = settings;
 
-        this._showRecentAppsMenu = this._settings?.get_boolean('show-recent-apps-menu');
-
         this._initSettings();
         this._initTaskBar();
     }
 
     _connectSignals() {
-        global.display.connectObject('window-created', (_display, window) => this._makeTaskButton(window), this);
+        global.display.connectObject('window-created',
+            (_display, window) => this._makeTaskButton(window), this);
 
-        if (this._settings?.get_boolean('scroll-panel'))
-            Main.panel.connectObject('scroll-event', (_actor, event) => Main.wm.handleWorkspaceScroll(event), this);
+        if (this._settings?.get_boolean('scroll-panel')) {
+            for (const panel of [Main.panel, ...this._panels.values()])
+                panel.connectObject('scroll-event',
+                    (_actor, event) => Main.wm.handleWorkspaceScroll(event), this);
+        }
     }
 
     _disconnectSignals() {
         global.display.disconnectObject(this);
         global.workspace_manager.disconnectObject(this);
 
-        Main.panel.disconnectObject(this);
+        for (const panel of [Main.panel, ...this._panels.values()])
+            panel.disconnectObject(this);
     }
 
     _initSettings() {
         const mutterSettings = new Gio.Settings({ schema_id: 'org.gnome.mutter' });
         this._isDynamicWorkspaces = mutterSettings?.get_boolean('dynamic-workspaces');
+
+        if (this._settings?.get_boolean('multi-monitor'))
+            this._monitorPanels = new MonitorPanels();
+        this._panels = this._monitorPanels?._panels ?? new Map();
 
         if (this._settings?.get_boolean('light-style'))
             this._lightStyleMode = new LightStyleMode();
@@ -773,9 +905,9 @@ class TasksInPanel extends GObject.Object {
         if (!window || window.skip_taskbar || window.window_type === Meta.WindowType.MODAL_DIALOG)
             return;
 
-        new TaskButton(this._taskSettings, this._globalRecentApps, window);
+        new TaskButton(this._taskSettings, this._globalRecentApps, this._panels, window);
 
-        if (this._showRecentAppsMenu && !this._recentAppsMenuTimeout) {
+        if (this._taskSettings.showRecentAppsMenu && !this._recentAppsMenuTimeout) {
             this._recentAppsMenuTimeout = GLib.idle_add_once(GLib.PRIORITY_DEFAULT_IDLE, () => {
                 this._recentAppsMenuButton?._updateRecentApps();
                 this._recentAppsMenuTimeout = null;
@@ -806,12 +938,15 @@ class TasksInPanel extends GObject.Object {
             GLib.source_remove(this._recentAppsMenuTimeout);
         this._recentAppsMenuTimeout = null;
 
-        for (const box of [Main.panel._leftBox, Main.panel._centerBox]) {
-            for (const bin of box.get_children()) {
-                const button = bin?.child;
+        const panels = [Main.panel, ...(this._monitorPanels?._panels.values() ?? [])];
+        for (const panel of panels) {
+            for (const box of [panel._leftBox, panel._centerBox]) {
+                for (const bin of box.get_children()) {
+                    const button = bin?.child;
 
-                if (button && button instanceof TaskButton)
-                    button.destroy();
+                    if (button && button instanceof TaskButton)
+                        button.destroy();
+                }
             }
         }
     }
@@ -860,14 +995,24 @@ class TasksInPanel extends GObject.Object {
 
         Main.panel._updatePanel();
 
+        this._monitorPanels?.destroy();
+        this._monitorPanels = null;
+
         this._globalRecentApps = null;
     }
 }
 
 export default class TasksInPanelExtension extends Extension {
     _restart() {
-        this.disable();
-        this.enable();
+        if (this._restartTimeout)
+            return;
+
+        this._restartTimeout = GLib.idle_add_once(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this._restartTimeout = null;
+
+            this.disable();
+            this.enable();
+        });
     }
 
     enable() {
@@ -877,10 +1022,19 @@ export default class TasksInPanelExtension extends Extension {
         this._mutterSettings = new Gio.Settings({ schema_id: 'org.gnome.mutter' });
         this._mutterSettings?.connectObject('changed::dynamic-workspaces', () => this._restart(), this);
 
+        if (this._settings?.get_boolean('multi-monitor'))
+            Main.layoutManager.connectObject('monitors-changed', () => this._restart(), this);
+
         this._tasksInPanel = new TasksInPanel(this._settings);
     }
 
     disable() {
+        if (this._restartTimeout)
+            GLib.source_remove(this._restartTimeout);
+        this._restartTimeout = null;
+
+        Main.layoutManager.disconnectObject(this);
+
         this._settings?.disconnectObject(this);
         this._settings = null;
 
