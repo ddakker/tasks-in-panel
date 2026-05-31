@@ -542,6 +542,8 @@ class TaskButton extends PanelMenu.Button {
 
         this._panel = panel;
         this._panel.addToStatusArea(this._buttonId, this, 99, this._side);
+        if (this.menu)
+            this._panel.menuManager.addMenu(this.menu);
     }
 
     _makeButtonBox() {
@@ -614,6 +616,11 @@ class TaskButton extends PanelMenu.Button {
     }
 
     _onHover() {
+        if (this._hoverTimeout) {
+            GLib.source_remove(this._hoverTimeout);
+            this._hoverTimeout = null;
+        }
+
         if (!this._taskSettings.hoverRaiseWindow || Main.overview.visible || !Main.wm._canScroll)
             return;
 
@@ -643,7 +650,7 @@ class TaskButton extends PanelMenu.Button {
             return;
 
         const wmClass = this._window?.wm_class;
-        const icon = wmClass?.startsWith('chrome') ? Gio.Icon.new_for_string(wmClass) : this._app.icon;
+        const icon = wmClass?.startsWith('chrome') ? Gio.ThemedIcon.new(wmClass) : this._app.icon;
         this._icon.set_gicon(icon);
         this._icon.set_icon_size(ICON_SIZE);
 
@@ -830,21 +837,21 @@ class TasksInPanel extends GObject.Object {
             this._showDesktopButton = new ShowDesktopButton();
 
         this._taskSettings = {
-            centerTasks: this._settings.get_boolean('center-tasks'),
-            showFocusedWindow: this._settings.get_boolean('show-focused-window'),
-            hoverRaiseWindow: this._settings.get_boolean('hover-raise-window'),
-            hoverDelay: this._settings.get_int('hover-delay'),
-            undecoratedTaskButtons: this._settings.get_boolean('undecorated-task-buttons'),
-            showActiveWorkspace: this._settings.get_boolean('show-active-workspace'),
-            showWindowTitle: this._settings.get_boolean('show-window-title'),
-            showWindowApp: this._settings.get_boolean('show-window-app'),
-            showWindowIcon: this._settings.get_boolean('show-window-icon'),
-            desaturateIcon: this._settings.get_boolean('desaturate-icon'),
-            buttonWidth: this._settings.get_int('button-width'),
-            groupWindows: this._settings.get_boolean('group-windows'),
-            showRecentAppsMenu: this._settings.get_boolean('show-recent-apps-menu'),
-            recentAppsListLength: this._settings.get_int('recent-apps-list-length'),
-            animateOnClose: this._settings.get_boolean('animate-on-close'),
+            centerTasks: this._settings?.get_boolean('center-tasks'),
+            showFocusedWindow: this._settings?.get_boolean('show-focused-window'),
+            hoverRaiseWindow: this._settings?.get_boolean('hover-raise-window'),
+            hoverDelay: this._settings?.get_int('hover-delay'),
+            undecoratedTaskButtons: this._settings?.get_boolean('undecorated-task-buttons'),
+            showActiveWorkspace: this._settings?.get_boolean('show-active-workspace'),
+            showWindowTitle: this._settings?.get_boolean('show-window-title'),
+            showWindowApp: this._settings?.get_boolean('show-window-app'),
+            showWindowIcon: this._settings?.get_boolean('show-window-icon'),
+            desaturateIcon: this._settings?.get_boolean('desaturate-icon'),
+            buttonWidth: this._settings?.get_int('button-width'),
+            groupWindows: this._settings?.get_boolean('group-windows'),
+            showRecentAppsMenu: this._settings?.get_boolean('show-recent-apps-menu'),
+            recentAppsListLength: this._settings?.get_int('recent-apps-list-length'),
+            animateOnClose: this._settings?.get_boolean('animate-on-close'),
         };
     }
 
