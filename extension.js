@@ -29,7 +29,8 @@ const FAVORITES_ICON_NAME = 'starred-symbolic';
 const RECENT_APPS_ICON_NAME = 'document-open-recent-symbolic';
 
 class MonitorPanels {
-    constructor() {
+    constructor(settings) {
+        this._settings = settings;
         this._panels = new Map();
 
         this._queueBuildPanels();
@@ -53,7 +54,7 @@ class MonitorPanels {
             if (monitor === Main.layoutManager.primaryMonitor)
                 continue;
 
-            this._panels.set(monitor, new MonitorPanel(monitor));
+            this._panels.set(monitor, new MonitorPanel(monitor, this._settings));
         }
     }
 
@@ -78,10 +79,11 @@ class MonitorPanel extends Panel {
         GObject.registerClass(this);
     }
 
-    constructor(monitor) {
+    constructor(monitor, settings) {
         super();
 
         this._monitor = monitor;
+        this._settings = settings;
 
         Main.layoutManager.panelBox.remove_child(this);
 
@@ -90,7 +92,23 @@ class MonitorPanel extends Panel {
             trackFullscreen: true,
         });
 
+        this._applyStyle();
         this._reposition();
+    }
+
+    _applyStyle() {
+        if (this._settings?.get_boolean('yaru-panel'))
+            this.add_style_class_name('panel-yaru-like');
+
+        if (this._settings?.get_boolean('accent-panel'))
+            this.add_style_class_name('panel-accent');
+
+        if (this._settings?.get_boolean('use-background-color')) {
+            const style = `background-color: ${this._settings?.get_string('background-color')}`;
+
+            this.set_style(style);
+            this.connectObject('style-changed', () => this.set_style(style), this);
+        }
     }
 
     vfunc_get_preferred_width(_forHeight) {
@@ -794,7 +812,7 @@ class TasksInPanel extends GObject.Object {
         this._isDynamicWorkspaces = mutterSettings?.get_boolean('dynamic-workspaces');
 
         if (this._settings?.get_boolean('multi-monitor'))
-            this._monitorPanels = new MonitorPanels();
+            this._monitorPanels = new MonitorPanels(this._settings);
         this._panels = this._monitorPanels?._panels ?? new Map();
 
         if (this._settings?.get_boolean('light-style'))
