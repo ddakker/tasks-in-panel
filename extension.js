@@ -758,11 +758,6 @@ class TaskButton extends PanelMenu.Button {
             this.destroy();
     }
 
-    // should be removed in a pure GNOME 50 version => has to be tested
-    vfunc_event(event) {
-        return Clutter.EVENT_PROPAGATE;
-    }
-
     destroy() {
         if (this._hoverTimeout)
             GLib.source_remove(this._hoverTimeout);
