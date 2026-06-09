@@ -469,7 +469,7 @@ class TaskButton extends PanelMenu.Button {
     }
 
     constructor(taskSettings, globalRecentApps, panels, window) {
-        super();
+        super(0.5, '', true);
 
         this._taskSettings = taskSettings;
         this._globalRecentApps = globalRecentApps;
