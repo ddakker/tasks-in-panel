@@ -778,7 +778,6 @@ class TasksInPanel extends GObject.Object {
 
         this._settings = settings;
 
-        this._initSettings();
         this._initTaskBar();
     }
 
@@ -869,7 +868,9 @@ class TasksInPanel extends GObject.Object {
 
     _initTaskBar() {
         this._initTaskBarTimeout = GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, 500, () => {
+            this._initSettings();
             this._makeTaskbar();
+
             this._initTaskBarTimeout = null;
         });
     }
