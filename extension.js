@@ -573,7 +573,7 @@ class TaskButton extends PanelMenu.Button {
             && this._taskSettings.buttonWidth > -1)
             this._box.set_style(`-st-natural-width: 9999px; max-width: ${this._taskSettings.buttonWidth}px;`);
 
-        this._icon = new St.Icon({ fallback_gicon: null });
+        this._icon = new St.Icon({ fallback_gicon: null, icon_size: ICON_SIZE });
         this._box.add_child(this._icon);
         this._icon.visible = this._taskSettings.showWindowIcon;
         if (this._taskSettings.desaturateIcon) {
@@ -670,7 +670,6 @@ class TaskButton extends PanelMenu.Button {
         const wmClass = this._window?.wm_class;
         const icon = wmClass?.startsWith('chrome') ? Gio.ThemedIcon.new(wmClass) : this._app.icon;
         this._icon.set_gicon(icon);
-        this._icon.set_icon_size(ICON_SIZE);
 
         this._appName.text = this._app.get_name() ?? '';
 
