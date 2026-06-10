@@ -163,7 +163,7 @@ class ShowDesktopButton extends PanelMenu.Button {
     }
 
     constructor() {
-        super();
+        super(0.5, null, true);
 
         this._makeButtonBox();
 
@@ -319,7 +319,7 @@ class WorkspacesBar extends PanelMenu.Button {
     }
 
     constructor(settings, isDynamicWorkspaces) {
-        super();
+        super(0.5, null, true);
         this.reactive = false;
 
         this._settings = settings;
@@ -469,7 +469,7 @@ class TaskButton extends PanelMenu.Button {
     }
 
     constructor(taskSettings, globalRecentApps, panels, window) {
-        super(0.5, '', true);
+        super(0.5, null, true);
 
         this._taskSettings = taskSettings;
         this._globalRecentApps = globalRecentApps;
@@ -691,7 +691,7 @@ class TaskButton extends PanelMenu.Button {
         if (this._taskSettings.showFocusedWindow || this._taskSettings.undecoratedTaskButtons)
             return;
 
-        if (this._window?.demands_attention) {
+        if (this._window?.demands_attention || this._window?.urgent) {
             this._box.add_style_class_name('task-box-demands-attention');
             this.visible = true;
         } else {
@@ -778,6 +778,7 @@ class TasksInPanel extends GObject.Object {
 
         this._settings = settings;
 
+        this._initSettings();
         this._initTaskBar();
     }
 
@@ -818,7 +819,7 @@ class TasksInPanel extends GObject.Object {
             Main.panel.add_style_class_name('panel-accent');
 
         if (this._settings?.get_boolean('use-background-color')) {
-            const style = `background-color: ${this._settings?.get_string('background-color')}`
+            const style = `background-color: ${this._settings?.get_string('background-color')}`;
 
             Main.panel.set_style(style);
             Main.panel.connectObject('style-changed', () => Main.panel.set_style(style), this);
@@ -868,7 +869,6 @@ class TasksInPanel extends GObject.Object {
 
     _initTaskBar() {
         this._initTaskBarTimeout = GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, 500, () => {
-            this._initSettings();
             this._makeTaskbar();
 
             this._initTaskBarTimeout = null;
