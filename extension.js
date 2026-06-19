@@ -828,8 +828,10 @@ class TasksInPanel extends GObject.Object {
         if (this._settings?.get_boolean('show-user-id'))
             this._userIdButton = new UserIdButton();
 
-        this._moveDate(this._settings?.get_boolean('move-date'));
-        Main.panel._updatePanel();
+        if (this._settings?.get_boolean('move-date')) {
+            this._moveDate(true);
+            Main.panel._updatePanel();
+        }
 
         if (!this._settings?.get_boolean('show-activities'))
             Main.panel.statusArea.activities?.hide();
@@ -1005,15 +1007,13 @@ class TasksInPanel extends GObject.Object {
 
         Main.panel.remove_style_class_name('panel-yaru-like');
         Main.panel.remove_style_class_name('panel-accent');
-        if (this._settings?.get_boolean('use-background-color'))
-            Main.panel.set_style(null);
+        Main.panel.set_style(null);
 
         Main.panel.statusArea.activities?.show();
         this._moveDate(false);
+        Main.panel._updatePanel();
 
         this._destroyItems();
-
-        Main.panel._updatePanel();
 
         this._monitorPanels?.destroy();
         this._monitorPanels = null;
