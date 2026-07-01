@@ -33,18 +33,7 @@ class MonitorPanels {
         this._settings = settings;
         this._panels = new Map();
 
-        this._queueBuildPanels();
-    }
-
-    _queueBuildPanels() {
-        if (this._buildPanelsTimeout)
-            return;
-
-        this._buildPanelsTimeout = GLib.idle_add_once(GLib.PRIORITY_DEFAULT_IDLE, () => {
-            this._buildPanels();
-
-            this._buildPanelsTimeout = null;
-        });
+        this._buildPanels();
     }
 
     _buildPanels() {
@@ -66,10 +55,6 @@ class MonitorPanels {
     }
 
     destroy() {
-        if (this._buildPanelsTimeout)
-            GLib.source_remove(this._buildPanelsTimeout);
-        this._buildPanelsTimeout = null;
-
         this._destroyPanels();
     }
 }
