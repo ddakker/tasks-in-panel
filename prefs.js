@@ -117,6 +117,8 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
         this._addSwitchRow(group, settings, 'show-window-icon', 'Show window icon');
         this._addSwitchRow(group, settings, 'show-window-title', 'Show window title');
         this._addSwitchRow(group, settings, 'show-window-app', 'Show application name');
+        this._addSwitchRow(group, settings, 'force-bold-tasks', 'Force bold font weight in tasks',
+            'Overrides the panel\'s normal font weight option.');
         this._addSwitchRow(group, settings, 'show-active-workspace', 'Show on active workspace only');
         this._addSwitchRow(group, settings, 'show-focused-window', 'Show focused window only',
             'Left-click opens the app menu instead of toggling the window.');

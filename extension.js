@@ -553,6 +553,8 @@ class TaskButton extends PanelMenu.Button {
         this._box = new St.BoxLayout({ reactive: true, track_hover: true });
         if (!this._taskSettings.showFocusedWindow && !this._taskSettings.undecoratedTaskButtons)
             this._box.add_style_class_name('task-box');
+        if (this._taskSettings.forceBoldTasks)
+            this._box.add_style_class_name('task-force-bold');
 
         if ((this._taskSettings.showWindowTitle || this._taskSettings.showWindowApp)
             && this._taskSettings.buttonWidth > -1)
@@ -846,6 +848,7 @@ class TasksInPanel extends GObject.Object {
             showWindowApp: this._settings?.get_boolean('show-window-app'),
             showWindowIcon: this._settings?.get_boolean('show-window-icon'),
             desaturateIcon: this._settings?.get_boolean('desaturate-icon'),
+            forceBoldTasks: this._settings?.get_boolean('force-bold-tasks'),
             buttonWidth: this._settings?.get_int('button-width'),
             groupWindows: this._settings?.get_boolean('group-windows'),
             showRecentAppsMenu: this._settings?.get_boolean('show-recent-apps-menu'),

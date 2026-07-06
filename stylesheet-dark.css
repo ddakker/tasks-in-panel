@@ -79,6 +79,10 @@
   font-weight: normal;
 }
 
+.panel-button .task-force-bold .task-label {
+  font-weight: bold;
+}
+
 .panel-accent {
   background-color: st-darken(-st-accent-color, 20%);
   color: -st-accent-fg-color;

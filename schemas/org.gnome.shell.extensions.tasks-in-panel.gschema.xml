@@ -134,6 +134,11 @@
             <summary>Monochrome icon</summary>
         </key>
 
+        <key type="b" name="force-bold-tasks">
+            <default>false</default>
+            <summary>Force bold font weight in tasks</summary>
+        </key>
+
         <key type="i" name="button-width">
             <default>256</default>
             <summary>Task button natural width</summary>
