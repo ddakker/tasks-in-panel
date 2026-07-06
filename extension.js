@@ -241,7 +241,12 @@ class FavoritesMenuButton extends PanelMenu.Button {
             const item = new PopupMenu.PopupImageMenuItem(favorite?.get_name(), favorite?.icon);
             this.menu?.addMenuItem(item);
 
-            item.connect('activate', () => favorite?.activate());
+            item.connect('activate', () => {
+                if (favorite?.can_open_new_window())
+                    favorite?.open_new_window(-1);
+                else
+                    favorite?.activate();
+            });
         }
     }
 
@@ -287,7 +292,12 @@ class RecentAppsMenuButton extends PanelMenu.Button {
             const item = new PopupMenu.PopupImageMenuItem(app?.get_name(), app?.icon);
             this.menu?.addMenuItem(item);
 
-            item.connect('activate', () => app?.activate());
+            item.connect('activate', () => {
+                if (app?.can_open_new_window())
+                    app?.open_new_window(-1);
+                else
+                    app?.activate();
+            });
         }
     }
 
