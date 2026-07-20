@@ -537,7 +537,8 @@ class TaskButton extends PanelMenu.Button {
             this._panel = this._panels.get(monitor) ?? Main.panel;
 
             if (!this._panel.statusArea[this._buttonId]) {
-                this._panel.addToStatusArea(this._buttonId, this, 99, this._side);
+                this._updateFavoriteRank();
+                this._panel.addToStatusArea(this._buttonId, this, this._taskPosition(), this._side);
                 this._abort = false;
             }
         }
@@ -554,9 +555,44 @@ class TaskButton extends PanelMenu.Button {
             this._panel.menuManager.removeMenu(this.menu);
 
         this._panel = panel;
-        this._panel.addToStatusArea(this._buttonId, this, 99, this._side);
+        this._updateFavoriteRank();
+        this._panel.addToStatusArea(this._buttonId, this, this._taskPosition(), this._side);
         if (this.menu)
             this._panel.menuManager.addMenu(this.menu);
+    }
+
+    // 이 창의 앱이 즐겨찾기(대시) 목록에서 몇 번째인지 계산한다.
+    // 즐겨찾기에 없으면 목록 맨 뒤 순위를 주어 실행순으로 뒤에 붙게 한다.
+    _updateFavoriteRank() {
+        if (!this._taskSettings.orderByFavorites) {
+            this._favoriteRank = 0;
+            return;
+        }
+
+        const app = Shell.WindowTracker.get_default().get_window_app(this._window);
+        const favorites = AppFavorites.getAppFavorites().getFavorites() ?? [];
+        const appId = app?.get_id();
+        const index = appId ? favorites.findIndex(fav => fav?.get_id() === appId) : -1;
+
+        this._favoriteRank = index === -1 ? favorites.length : index;
+    }
+
+    // 즐겨찾기 순서를 유지하도록 이 버튼을 넣을 박스 내 위치(인덱스)를 정한다.
+    // 순위가 더 높은(=뒤쪽) 첫 태스크 버튼 앞에 삽입한다. 없으면 맨 뒤에 붙인다.
+    _taskPosition() {
+        if (!this._taskSettings.orderByFavorites)
+            return 99;
+
+        const box = this._side === 'center' ? this._panel._centerBox : this._panel._leftBox;
+        const children = box.get_children();
+
+        for (let i = 0; i < children.length; i++) {
+            const button = children[i]?.child;
+            if (button instanceof TaskButton && button !== this && button._favoriteRank > this._favoriteRank)
+                return i;
+        }
+
+        return children.length;
     }
 
     _makeButtonBox() {
@@ -783,6 +819,11 @@ class TasksInPanel extends GObject.Object {
         global.display.connectObject('window-created',
             (_display, window) => this._makeTaskButton(window), this);
 
+        if (this._taskSettings?.orderByFavorites) {
+            AppFavorites.getAppFavorites().connectObject('changed',
+                () => this._reorderTasksByFavorites(), this);
+        }
+
         if (this._settings?.get_boolean('scroll-panel')) {
             for (const panel of [Main.panel, ...this._panels.values()])
                 panel.connectObject('scroll-event',
@@ -793,9 +834,30 @@ class TasksInPanel extends GObject.Object {
     _disconnectSignals() {
         global.display.disconnectObject(this);
         global.workspace_manager.disconnectObject(this);
+        AppFavorites.getAppFavorites()?.disconnectObject(this);
 
         for (const panel of [Main.panel, ...this._panels.values()])
             panel.disconnectObject(this);
+    }
+
+    // 대시(즐겨찾기) 순서가 바뀌면 이미 떠 있는 태스크 버튼들을 그 순서로 다시 정렬한다.
+    _reorderTasksByFavorites() {
+        for (const panel of [Main.panel, ...this._panels.values()]) {
+            for (const box of [panel._leftBox, panel._centerBox]) {
+                const children = box.get_children();
+                const taskBins = children.filter(bin => bin?.child instanceof TaskButton);
+                if (taskBins.length < 2)
+                    continue;
+
+                const base = Math.min(...taskBins.map(bin => children.indexOf(bin)));
+
+                for (const bin of taskBins)
+                    bin.child._updateFavoriteRank();
+
+                const sorted = [...taskBins].sort((a, b) => a.child._favoriteRank - b.child._favoriteRank);
+                sorted.forEach((bin, offset) => box.set_child_at_index(bin, base + offset));
+            }
+        }
     }
 
     _initSettings() {
@@ -861,6 +923,7 @@ class TasksInPanel extends GObject.Object {
             forceBoldTasks: this._settings?.get_boolean('force-bold-tasks'),
             buttonWidth: this._settings?.get_int('button-width'),
             groupWindows: this._settings?.get_boolean('group-windows'),
+            orderByFavorites: this._settings?.get_boolean('order-by-favorites'),
             showRecentAppsMenu: this._settings?.get_boolean('show-recent-apps-menu'),
             recentAppsListLength: this._settings?.get_int('recent-apps-list-length'),
             animateOnClose: this._settings?.get_boolean('animate-on-close'),

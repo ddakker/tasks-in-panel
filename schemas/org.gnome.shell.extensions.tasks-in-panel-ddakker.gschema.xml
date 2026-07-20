@@ -2,7 +2,7 @@
 
 <schemalist>
 
-    <schema path="/org/gnome/shell/extensions/tasks-in-panel/" id="org.gnome.shell.extensions.tasks-in-panel">
+    <schema path="/org/gnome/shell/extensions/tasks-in-panel-ddakker/" id="org.gnome.shell.extensions.tasks-in-panel-ddakker">
 
         <key type="b" name="light-style">
             <default>true</default>
@@ -112,6 +112,11 @@
         <key type="b" name="group-windows">
             <default>false</default>
             <summary>Group windows by app</summary>
+        </key>
+
+        <key type="b" name="order-by-favorites">
+            <default>false</default>
+            <summary>Order tasks by favorites (dash) order</summary>
         </key>
 
         <key type="b" name="hover-raise-window">
