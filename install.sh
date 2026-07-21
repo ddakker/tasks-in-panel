@@ -30,10 +30,12 @@ done
 
 # 3) 소스 복사 (.git 및 스크립트 자기 자신은 제외)
 mkdir -p "${DEST_DIR}"
+# po/ 는 번역 소스라 런타임에 불필요하다. 컴파일 결과인 locale/ 만 설치한다.
 rsync -a \
     --exclude '.git' \
     --exclude 'install.sh' \
     --exclude 'build.sh' \
+    --exclude 'po' \
     "${SRC_DIR}/" "${DEST_DIR}/"
 echo "설치: ${DEST_DIR}"
 echo

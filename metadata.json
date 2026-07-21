@@ -7,6 +7,7 @@
   "url": "https://github.com/fthx/tasks-in-panel",
   "uuid": "tasks-in-panel-ddakker@gmail.com",
   "settings-schema": "org.gnome.shell.extensions.tasks-in-panel-ddakker",
+  "gettext-domain": "tasks-in-panel-ddakker",
   "version": 999,
   "donations": {
     "paypal": "fthx75"

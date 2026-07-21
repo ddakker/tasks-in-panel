@@ -3,7 +3,8 @@ import Gdk from 'gi://Gdk';
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 
-import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+import { ExtensionPreferences, gettext as _ }
+    from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 
 export default class TasksInPanelPreferences extends ExtensionPreferences {
@@ -30,7 +31,7 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
     }
 
     _buildColorRow(settings) {
-        const row = new Adw.ActionRow({ title: 'Custom background color' });
+        const row = new Adw.ActionRow({ title: _('Custom background color') });
 
         const colorButton = new Gtk.ColorDialogButton({
             valign: Gtk.Align.CENTER,
@@ -52,97 +53,97 @@ export default class TasksInPanelPreferences extends ExtensionPreferences {
 
     _buildGlobalPage(settings) {
         const page = new Adw.PreferencesPage({
-            title: 'Global',
+            title: _('Global'),
             icon_name: 'view-list-symbolic',
         });
 
         const group = new Adw.PreferencesGroup();
         page.add(group);
 
-        this._addSwitchRow(group, settings, 'light-style', 'Light style mode',
-            'GNOME Shell follows the system dark/light setting.');
-        this._addSwitchRow(group, settings, 'yaru-panel', 'Use normal font weight in the panel');
-        this._addSwitchRow(group, settings, 'accent-panel', 'Use accent color',
-            'Panel background uses the GNOME accent color.');
-        this._addSwitchRow(group, settings, 'use-background-color', 'Use custom background color');
+        this._addSwitchRow(group, settings, 'light-style', _('Light style mode'),
+            _('GNOME Shell follows the system dark/light setting.'));
+        this._addSwitchRow(group, settings, 'yaru-panel', _('Use normal font weight in the panel'));
+        this._addSwitchRow(group, settings, 'accent-panel', _('Use accent color'),
+            _('Panel background uses the GNOME accent color.'));
+        this._addSwitchRow(group, settings, 'use-background-color', _('Use custom background color'));
 
         group.add(this._buildColorRow(settings));
 
-        this._addSwitchRow(group, settings, 'scroll-panel', 'Scroll on the panel to switch workspace');
-        this._addSwitchRow(group, settings, 'multi-monitor', 'Multi-monitor support',
-            'A task panel on each secondary monitor.\nTasks follow their window\'s monitor.');
+        this._addSwitchRow(group, settings, 'scroll-panel', _('Scroll on the panel to switch workspace'));
+        this._addSwitchRow(group, settings, 'multi-monitor', _('Multi-monitor support'),
+            _('A task panel on each secondary monitor.\nTasks follow their window\'s monitor.'));
 
         return page;
     }
 
     _buildIndicatorsPage(settings) {
         const page = new Adw.PreferencesPage({
-            title: 'Indicators',
+            title: _('Indicators'),
             icon_name: 'view-list-symbolic',
         });
 
         const group = new Adw.PreferencesGroup();
         page.add(group);
 
-        this._addSwitchRow(group, settings, 'show-user-id', 'Show user name');
-        this._addSwitchRow(group, settings, 'show-show-desktop', 'Show desktop button',
-            'Minimizes all windows when at least one is visible.\nRestores all windows when they are all minimized.');
-        this._addSwitchRow(group, settings, 'move-date', 'Move the date menu to the right');
-        this._addSwitchRow(group, settings, 'show-activities', 'Show activities button');
-        this._addSwitchRow(group, settings, 'show-workspaces-bar', 'Show workspaces bar');
-        this._addSwitchRow(group, settings, 'show-plus-minus', 'Show +/- to add/remove workspace',
-            'Hidden when GNOME\'s dynamic workspaces option is active.\nMinus removes the active workspace.');
-        this._addSwitchRow(group, settings, 'show-favorites-menu', 'Show favorites menu button');
-        this._addSwitchRow(group, settings, 'show-recent-apps-menu', 'Show recent applications menu button');
+        this._addSwitchRow(group, settings, 'show-user-id', _('Show user name'));
+        this._addSwitchRow(group, settings, 'show-show-desktop', _('Show desktop button'),
+            _('Minimizes all windows when at least one is visible.\nRestores all windows when they are all minimized.'));
+        this._addSwitchRow(group, settings, 'move-date', _('Move the date menu to the right'));
+        this._addSwitchRow(group, settings, 'show-activities', _('Show activities button'));
+        this._addSwitchRow(group, settings, 'show-workspaces-bar', _('Show workspaces bar'));
+        this._addSwitchRow(group, settings, 'show-plus-minus', _('Show +/- to add/remove workspace'),
+            _('Hidden when GNOME\'s dynamic workspaces option is active.\nMinus removes the active workspace.'));
+        this._addSwitchRow(group, settings, 'show-favorites-menu', _('Show favorites menu button'));
+        this._addSwitchRow(group, settings, 'show-recent-apps-menu', _('Show recent applications menu button'));
 
         this._addSpinRow(group, settings, 'recent-apps-list-length',
-            'Maximum number of recent applications',
+            _('Maximum number of recent applications'),
             new Gtk.Adjustment({ lower: 1, upper: 20, step_increment: 1 }));
 
-        this._addSwitchRow(group, settings, 'center-tasks', 'Move tasks to the center',
-            'Tasks are aligned to the left by default.');
+        this._addSwitchRow(group, settings, 'center-tasks', _('Move tasks to the center'),
+            _('Tasks are aligned to the left by default.'));
 
         return page;
     }
 
     _buildTasksPage(settings) {
         const page = new Adw.PreferencesPage({
-            title: 'Tasks',
+            title: _('Tasks'),
             icon_name: 'view-list-symbolic',
         });
 
         const group = new Adw.PreferencesGroup();
         page.add(group);
 
-        this._addSwitchRow(group, settings, 'show-window-icon', 'Show window icon');
-        this._addSwitchRow(group, settings, 'show-window-title', 'Show window title');
-        this._addSwitchRow(group, settings, 'show-window-app', 'Show application name');
-        this._addSwitchRow(group, settings, 'force-bold-tasks', 'Force bold font weight in tasks',
-            'Overrides the panel\'s normal font weight option.');
-        this._addSwitchRow(group, settings, 'show-active-workspace', 'Show on active workspace only');
-        this._addSwitchRow(group, settings, 'show-focused-window', 'Show focused window only',
-            'Left-click opens the app menu instead of toggling the window.');
-        this._addSwitchRow(group, settings, 'group-windows', 'Group by app',
-            'Only the topmost window of each app is shown.\nOther windows are available from the app menu.');
-        this._addSwitchRow(group, settings, 'order-by-favorites', 'Order tasks by favorites',
-            'Tasks follow the dash (favorites) order.\nApps not in favorites are appended in launch order.');
-        this._addSwitchRow(group, settings, 'hover-raise-window', 'Raise window on hover');
+        this._addSwitchRow(group, settings, 'show-window-icon', _('Show window icon'));
+        this._addSwitchRow(group, settings, 'show-window-title', _('Show window title'));
+        this._addSwitchRow(group, settings, 'show-window-app', _('Show application name'));
+        this._addSwitchRow(group, settings, 'force-bold-tasks', _('Force bold font weight in tasks'),
+            _('Overrides the panel\'s normal font weight option.'));
+        this._addSwitchRow(group, settings, 'show-active-workspace', _('Show on active workspace only'));
+        this._addSwitchRow(group, settings, 'show-focused-window', _('Show focused window only'),
+            _('Left-click opens the app menu instead of toggling the window.'));
+        this._addSwitchRow(group, settings, 'group-windows', _('Group by app'),
+            _('Only the topmost window of each app is shown.\nOther windows are available from the app menu.'));
+        this._addSwitchRow(group, settings, 'order-by-favorites', _('Order tasks by favorites'),
+            _('Tasks follow the dash (favorites) order.\nApps not in favorites are appended in launch order.'));
+        this._addSwitchRow(group, settings, 'hover-raise-window', _('Raise window on hover'));
 
         this._addSpinRow(group, settings, 'hover-delay',
-            'Hover delay before raising window (ms)',
+            _('Hover delay before raising window (ms)'),
             new Gtk.Adjustment({ lower: 0, upper: 1000, step_increment: 50 }));
 
-        this._addSwitchRow(group, settings, 'undecorated-task-buttons', 'Undecorated buttons',
-            'Unfocused buttons are dimmed.');
-        this._addSwitchRow(group, settings, 'desaturate-icon', 'Monochrome icon',
-            'Some apps do have a symbolic icon.');
+        this._addSwitchRow(group, settings, 'undecorated-task-buttons', _('Undecorated buttons'),
+            _('Unfocused buttons are dimmed.'));
+        this._addSwitchRow(group, settings, 'desaturate-icon', _('Monochrome icon'),
+            _('Some apps do have a symbolic icon.'));
 
         this._addSpinRow(group, settings, 'button-width',
-            'Task button natural width (px)',
+            _('Task button natural width (px)'),
             new Gtk.Adjustment({ lower: -1, upper: 999, step_increment: 10 }),
-            'Reduced if the available width is insufficient.\nSet to -1 to fit content.');
+            _('Reduced if the available width is insufficient.\nSet to -1 to fit content.'));
 
-        this._addSwitchRow(group, settings, 'animate-on-close', 'Animate on close');
+        this._addSwitchRow(group, settings, 'animate-on-close', _('Animate on close'));
 
         return page;
     }

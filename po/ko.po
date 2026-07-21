@@ -1,0 +1,220 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: tasks-in-panel-ddakker\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: prefs.js
+msgid "Custom background color"
+msgstr "사용자 지정 배경색"
+
+#: prefs.js
+msgid "Global"
+msgstr "일반"
+
+#: prefs.js
+msgid "Light style mode"
+msgstr "밝은 스타일 모드"
+
+#: prefs.js
+msgid "GNOME Shell follows the system dark/light setting."
+msgstr "GNOME 셸이 시스템의 밝게/어둡게 설정을 따릅니다."
+
+#: prefs.js
+msgid "Use normal font weight in the panel"
+msgstr "패널에서 보통 굵기 글꼴 사용"
+
+#: prefs.js
+msgid "Use accent color"
+msgstr "강조 색 사용"
+
+#: prefs.js
+msgid "Panel background uses the GNOME accent color."
+msgstr "패널 배경에 GNOME 강조 색을 사용합니다."
+
+#: prefs.js
+msgid "Use custom background color"
+msgstr "사용자 지정 배경색 사용"
+
+#: prefs.js
+msgid "Scroll on the panel to switch workspace"
+msgstr "패널에서 스크롤하여 작업 공간 전환"
+
+#: prefs.js
+msgid "Multi-monitor support"
+msgstr "다중 모니터 지원"
+
+#: prefs.js
+msgid ""
+"A task panel on each secondary monitor.\n"
+"Tasks follow their window's monitor."
+msgstr ""
+"보조 모니터마다 태스크 패널을 표시합니다.\n"
+"태스크는 해당 창이 있는 모니터를 따라갑니다."
+
+#: prefs.js
+msgid "Indicators"
+msgstr "표시기"
+
+#: prefs.js
+msgid "Show user name"
+msgstr "사용자 이름 표시"
+
+#: prefs.js
+msgid "Show desktop button"
+msgstr "바탕 화면 보기 단추 표시"
+
+#: prefs.js
+msgid ""
+"Minimizes all windows when at least one is visible.\n"
+"Restores all windows when they are all minimized."
+msgstr ""
+"창이 하나라도 보이면 모든 창을 최소화합니다.\n"
+"모든 창이 최소화된 상태면 다시 복원합니다."
+
+#: prefs.js
+msgid "Move the date menu to the right"
+msgstr "날짜 메뉴를 오른쪽으로 이동"
+
+#: prefs.js
+msgid "Show activities button"
+msgstr "활동 단추 표시"
+
+#: prefs.js
+msgid "Show workspaces bar"
+msgstr "작업 공간 표시줄 표시"
+
+#: prefs.js
+msgid "Show +/- to add/remove workspace"
+msgstr "작업 공간 추가/제거 +/- 단추 표시"
+
+#: prefs.js
+msgid ""
+"Hidden when GNOME's dynamic workspaces option is active.\n"
+"Minus removes the active workspace."
+msgstr ""
+"GNOME의 동적 작업 공간 옵션이 켜져 있으면 숨겨집니다.\n"
+"빼기(−)는 현재 작업 공간을 제거합니다."
+
+#: prefs.js
+msgid "Show favorites menu button"
+msgstr "즐겨찾기 메뉴 단추 표시"
+
+#: prefs.js
+msgid "Show recent applications menu button"
+msgstr "최근 앱 메뉴 단추 표시"
+
+#: prefs.js
+msgid "Maximum number of recent applications"
+msgstr "최근 앱 최대 개수"
+
+#: prefs.js
+msgid "Move tasks to the center"
+msgstr "태스크를 가운데로 이동"
+
+#: prefs.js
+msgid "Tasks are aligned to the left by default."
+msgstr "태스크는 기본적으로 왼쪽에 정렬됩니다."
+
+#: prefs.js
+msgid "Tasks"
+msgstr "태스크"
+
+#: prefs.js
+msgid "Show window icon"
+msgstr "창 아이콘 표시"
+
+#: prefs.js
+msgid "Show window title"
+msgstr "창 제목 표시"
+
+#: prefs.js
+msgid "Show application name"
+msgstr "앱 이름 표시"
+
+#: prefs.js
+msgid "Force bold font weight in tasks"
+msgstr "태스크 글꼴을 항상 굵게"
+
+#: prefs.js
+msgid "Overrides the panel's normal font weight option."
+msgstr "패널의 보통 굵기 글꼴 옵션보다 우선합니다."
+
+#: prefs.js
+msgid "Show on active workspace only"
+msgstr "현재 작업 공간의 창만 표시"
+
+#: prefs.js
+msgid "Show focused window only"
+msgstr "포커스된 창만 표시"
+
+#: prefs.js
+msgid "Left-click opens the app menu instead of toggling the window."
+msgstr "왼쪽 클릭 시 창을 토글하지 않고 앱 메뉴를 엽니다."
+
+#: prefs.js
+msgid "Group by app"
+msgstr "앱별로 묶기"
+
+#: prefs.js
+msgid ""
+"Only the topmost window of each app is shown.\n"
+"Other windows are available from the app menu."
+msgstr ""
+"앱마다 맨 위 창 하나만 표시합니다.\n"
+"나머지 창은 앱 메뉴에서 선택할 수 있습니다."
+
+#: prefs.js
+msgid "Order tasks by favorites"
+msgstr "즐겨찾기 순서로 태스크 정렬"
+
+#: prefs.js
+msgid ""
+"Tasks follow the dash (favorites) order.\n"
+"Apps not in favorites are appended in launch order."
+msgstr ""
+"태스크가 대시(즐겨찾기) 순서를 따릅니다.\n"
+"즐겨찾기에 없는 앱은 실행 순서대로 뒤에 붙습니다."
+
+#: prefs.js
+msgid "Raise window on hover"
+msgstr "마우스를 올리면 창 띄우기"
+
+#: prefs.js
+msgid "Hover delay before raising window (ms)"
+msgstr "창을 띄우기까지의 대기 시간 (밀리초)"
+
+#: prefs.js
+msgid "Undecorated buttons"
+msgstr "단추 장식 없애기"
+
+#: prefs.js
+msgid "Unfocused buttons are dimmed."
+msgstr "포커스가 없는 단추는 흐리게 표시됩니다."
+
+#: prefs.js
+msgid "Monochrome icon"
+msgstr "단색 아이콘"
+
+#: prefs.js
+msgid "Some apps do have a symbolic icon."
+msgstr "일부 앱은 심볼릭 아이콘을 제공합니다."
+
+#: prefs.js
+msgid "Task button natural width (px)"
+msgstr "태스크 단추 기본 너비 (픽셀)"
+
+#: prefs.js
+msgid ""
+"Reduced if the available width is insufficient.\n"
+"Set to -1 to fit content."
+msgstr ""
+"사용 가능한 너비가 부족하면 자동으로 줄어듭니다.\n"
+"-1로 설정하면 내용에 맞춰집니다."
+
+#: prefs.js
+msgid "Animate on close"
+msgstr "닫을 때 애니메이션 표시"
